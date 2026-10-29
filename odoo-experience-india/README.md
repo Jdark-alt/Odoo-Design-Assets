@@ -25,6 +25,6 @@ node -e "const {kolam, kolamSVG} = require('./src/kolam'); console.log(kolamSVG(
 
 ## Adding a city
 
-Add two to four doodles to `src/doodles.def.js` on the same 96px grid (4.5px outline, fill offset 4.5px down and right, one palette fill each) and rerun `make-doodles.js`. Keep everything else as it is.
+Add two to four doodles to `src/doodles.def.js` on the same 96px grid (3.2px outline, fill offset 4px down and right, one palette fill each, ink lines about 8px apart) and rerun `make-doodles.js`. Keep everything else as it is.
 
 Odoo's logo, app icons and official graphic elements are not in this repository; use the originals from Odoo's brand assets.

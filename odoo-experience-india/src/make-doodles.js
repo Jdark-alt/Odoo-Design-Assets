@@ -8,7 +8,7 @@ const defs = require('./doodles.def');
 
 const PALETTE = { yellow: '#FBB130', teal: '#00CEB3', cyan: '#1BB6F9', red: '#FC787D', purple: '#714B67', green: '#017E84' };
 const INK = { night: '#FFFFFF', day: '#21272B' };
-const OFFSET = 4.5, STROKE = 4.5, SHINE = 2.4;
+const OFFSET = 4, STROKE = 3.2, SHINE = 2;
 
 function svgFor(dd, ink) {
   const fill = PALETTE[dd.fill];
@@ -29,7 +29,7 @@ function svgFor(dd, ink) {
   const items = [];
   defs.forEach((dd, i) => {
     dd.fills.forEach((d, j) => items.push({ id: dd.id, kind: 'fills', j, d, amp: 0.35, seed: 1000 + i * 97 + j }));
-    dd.lines.forEach((d, j) => items.push({ id: dd.id, kind: 'lines', j, d, amp: 0.6, seed: 2000 + i * 97 + j }));
+    dd.lines.forEach((d, j) => items.push({ id: dd.id, kind: 'lines', j, d, amp: 0.45, seed: 2000 + i * 97 + j }));
     dd.shine.forEach((d, j) => items.push({ id: dd.id, kind: 'shine', j, d, amp: 0.2, seed: 3000 + i * 97 + j }));
   });
   const done = await wobbleAll(p, items);
