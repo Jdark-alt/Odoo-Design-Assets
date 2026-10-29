@@ -1,0 +1,95 @@
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300;400;700&display=swap");
+/* Odoo Experience India — generated from tokens.json */
+:root, [data-theme="night"] {
+  --odoo-purple: #714b67;
+  --odoo-green: #017e84;
+  --text-black: #21272b;
+  --logo-gray: #8f8f8f;
+  --shape-gray: #f3f4f6;
+  --accent-red: #fc787d;
+  --accent-yellow: #fbb130;
+  --accent-teal: #00ceb3;
+  --accent-cyan: #1bb6f9;
+  --white: #ffffff;
+  --night-950: #03060f;
+  --night-900: #0b1120;
+  --night-glow-teal: #14313f;
+  --night-glow-plum: #141227;
+  --surface: var(--night-900);
+  --surface-deep: var(--night-950);
+  --frame: #161c2e;
+  --frame-brand: var(--odoo-purple);
+  --ink: var(--white);
+  --ink-muted: #a7aebd;
+  --on-brand: var(--white);
+  --link: var(--accent-teal);
+  --accent-word: var(--accent-yellow);
+  --line: #2a3247;
+  --line-strong: #646d82;
+  --focus-ring: var(--accent-cyan);
+  --doodle-ink: var(--white);
+  --kolam-line: var(--white);
+  --pulli: rgba(255,255,255,0.18);
+  --logo-o: var(--white);
+  --logo-doo: var(--white);
+  --tile: var(--white);
+  --route-purple: var(--odoo-purple);
+  --route-green: var(--odoo-green);
+  --route-yellow: var(--accent-yellow);
+  --route-pink: var(--accent-red);
+  --route-blue: var(--accent-cyan);
+  --shadow-tile: 0 6px 18px rgba(0,0,0,0.45);
+}
+[data-theme="day"] {
+  --surface: var(--white);
+  --surface-deep: var(--shape-gray);
+  --frame: var(--shape-gray);
+  --ink: var(--text-black);
+  --ink-muted: #5a6169;
+  --link: var(--odoo-green);
+  --accent-word: var(--odoo-purple);
+  --line: #dee2e6;
+  --line-strong: #8c939f;
+  --focus-ring: var(--odoo-green);
+  --doodle-ink: var(--text-black);
+  --kolam-line: var(--odoo-purple);
+  --pulli: rgba(113,75,103,0.22);
+  --logo-o: var(--odoo-purple);
+  --logo-doo: var(--logo-gray);
+  --shadow-tile: 0 4px 12px rgba(33,39,43,0.16);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+  --radius-button: 4px;
+  --radius-content: 10px;
+  --radius-large: 200px;
+  --radius-pill: 9999px;
+  --logo-min-height: 20px;
+  --pulli-pitch: 24px;
+  --doodle-stroke: 4.5px;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-hand: Caveat, "Segoe Print", "Bradley Hand", cursive;
+}
+.display-xl { font-family: var(--font-sans); font-size: 88px; line-height: 1.0; font-weight: 700; letter-spacing: -0.02em; }
+.display-l { font-family: var(--font-sans); font-size: 64px; line-height: 1.04; font-weight: 700; letter-spacing: -0.02em; }
+.headline { font-family: var(--font-sans); font-size: 44px; line-height: 1.1; font-weight: 700; letter-spacing: -0.015em; }
+.title { font-family: var(--font-sans); font-size: 28px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; }
+.hand-xl { font-family: var(--font-hand); font-size: 104px; line-height: 0.9; font-weight: 700; }
+.hand-l { font-family: var(--font-hand); font-size: 76px; line-height: 0.95; font-weight: 700; }
+.hand-m { font-family: var(--font-hand); font-size: 52px; line-height: 1.0; font-weight: 700; }
+.hand-s { font-family: var(--font-hand); font-size: 34px; line-height: 1.1; font-weight: 700; }
+.lead { font-family: var(--font-sans); font-size: 22px; line-height: 1.45; font-weight: 300; }
+.body { font-family: var(--font-sans); font-size: 17px; line-height: 1.6; font-weight: 400; }
+.body-strong { font-family: var(--font-sans); font-size: 17px; line-height: 1.6; font-weight: 700; }
+.small { font-family: var(--font-sans); font-size: 14px; line-height: 1.5; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 13px; line-height: 1.2; font-weight: 700; letter-spacing: 0.08em; }
+.date-numeral { font-family: var(--font-sans); font-size: 120px; line-height: 0.9; font-weight: 300; letter-spacing: -0.04em; }
