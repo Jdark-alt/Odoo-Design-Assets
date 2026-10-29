@@ -1,1 +1,0 @@
-# Odoo-Design-Assets
