@@ -1,5 +1,7 @@
 # Music prompt (Gemini / Lyria)
 
+> The track generated from this prompt ("Open Invitation", `assets/audio/open-invitation.mp3`) is what the video uses now, as a 21-second edit; see the Music section of the README. The timings below were written for the earlier 30-second cut.
+
 The video runs at **120 BPM**: 1 beat = 0.5 s, 1 bar = 2 s, 30 s = 60 beats. Paste the prompt below into Gemini (or any Lyria-based generator). Generate 3 to 5 takes and keep the one whose beat starts right at 0:00 and whose energy follows the section map most closely. AI generators rarely hit exact timings, so I'll line the chosen take up with the cut (offset, trim, and a small tempo nudge if needed). Sound effects stay on their own track.
 
 ## Prompt

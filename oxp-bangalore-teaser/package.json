@@ -5,14 +5,14 @@
   "description": "Odoo Experience Bangalore: 30-second kinetic typography teaser (Remotion)",
   "scripts": {
     "studio": "remotion studio",
-    "music": "tsx scripts/make-music.ts",
+    "music": "tsx scripts/edit-music.ts",
     "render": "remotion render Teaser-4x5 out/oxp-bangalore-teaser-4x5.mp4",
     "render:1x1": "remotion render Teaser-1x1 out/oxp-bangalore-teaser-1x1.mp4",
     "render:16x9": "remotion render Teaser-16x9 out/oxp-bangalore-teaser-16x9.mp4",
     "still": "remotion still Teaser-4x5",
     "typecheck": "tsc --noEmit",
     "sfx": "tsx scripts/make-sfx.ts",
-    "audio": "tsx scripts/make-music.ts && tsx scripts/make-sfx.ts"
+    "audio": "tsx scripts/edit-music.ts && tsx scripts/make-sfx.ts"
   },
   "dependencies": {
     "@remotion/cli": "4.0.535",

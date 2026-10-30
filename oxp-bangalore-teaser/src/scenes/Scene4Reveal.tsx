@@ -32,7 +32,7 @@ export const Scene4Reveal: React.FC = () => (
 const Reveal: React.FC = () => {
   const f = useCurrentFrame();
   const L = useLayout();
-  const { P, X, Y } = L;
+  const { P } = L;
   const fOdoo = b(C.odooExperience);
   const fTo = b(C.to);
   const fYou = b(C.you);
@@ -62,8 +62,11 @@ const Reveal: React.FC = () => {
   // lines 1-2 start centred on their own and lift as "you" lands
   const h12 = s1 * 1.4 + lk * 1.25;
   const lift = (L.box.y + (L.box.h - h12) / 2 - y1) * (1 - prog(f, fYou - 3, 10, E.out));
-  const x0 = X(0);
-  const youX = x0 - pad * 0.3;
+  // everything centred on the vertical axis
+  const wTo = textWidth(' to', sExp, FONTS.weight.light);
+  const w2 = wLogo + lk * 0.5 + wExp + wTo;
+  const x2 = (L.W - w2) / 2;
+  const youX = (L.W - barW) / 2;
 
   // "you": centre of the word, for the pops and confetti
   const cx = youX + barW / 2;
@@ -79,12 +82,14 @@ const Reveal: React.FC = () => {
     xw += textWidth(w.text, s1, W1) + wSpace;
     return { ...w, x };
   });
+  const w1 = xw - wSpace;
+  const x1 = (L.W - w1) / 2;
 
   return (
     <div style={{ position: 'absolute', inset: 0, opacity: 1 - out, transform: `scale(${(1 + out * 0.12) * hold})`, transformOrigin: `${(cx / L.W) * 100}% ${(cy / L.H) * 100}%` }}>
       {/* line 1: supporting words, each landing on its beat */}
-      <At x={x0} y={y1 + lift + drift(f, P(3), 100, 1)}>
-        <div style={{ position: 'relative', height: s1, width: xw }}>
+      <At x={x1} y={y1 + lift + drift(f, P(3), 100, 1)}>
+        <div style={{ position: 'relative', height: s1, width: w1 }}>
           {words.map((w, wi) => (
             <div key={w.text} style={{ position: 'absolute', left: w.x, top: 0, ...(wi === 1 || wi === 3 ? lineMask(s1) : null) }}>
               <KText
@@ -100,7 +105,7 @@ const Reveal: React.FC = () => {
                   }
                   if (wi === 2) {
                     // "bringing" slides in from the right, letter by letter
-                    const p = prog(f, f0 + i * 1.1, 9, E.out);
+                    const p = prog(f, f0 + i * 0.6, 6, E.out);
                     return { transform: `translateX(${(1 - p) * L.W * 0.7}px) skewX(${(1 - p) * -18}deg)`, opacity: p > 0.02 ? 1 : 0 };
                   }
                   return rise(f, f0 + i * 1.2, 9);
@@ -112,8 +117,8 @@ const Reveal: React.FC = () => {
       </At>
 
       {/* line 2: the anchor, logo + Experience, then a quiet "to" */}
-      <At x={x0} y={y2 + lift + drift(f, P(3), 100, 2)}>
-        <div style={{ position: 'relative', height: lk * 1.25, width: lineW }}>
+      <At x={x2} y={y2 + lift + drift(f, P(3), 100, 2)}>
+        <div style={{ position: 'relative', height: lk * 1.25, width: w2 }}>
           <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${mix(0.6, 1, pop(f, fOdoo, { damping: 13, stiffness: 260, mass: 0.6 }))})`, transformOrigin: '0% 100%', opacity: Math.min(1, prog(f, fOdoo, 3) * 1.5) }}>
             <Logo height={lk} />
           </div>

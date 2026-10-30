@@ -14,8 +14,8 @@ import { teaseMonument, teaseType } from './shared';
 
 const C = CUES.tease;
 const TYPE = 'But this time,';
-const FRAMES_PER_CHAR = 2;
-const TYPE_DELAY = 4; // the caret forms first, then typing starts
+const FRAMES_PER_CHAR = 1.4;
+const TYPE_DELAY = 3; // the caret forms first, then typing starts
 
 export const Scene3Tease: React.FC = () => (
   <SceneWindow id="tease">
@@ -37,8 +37,8 @@ const Tease: React.FC = () => {
   const mH = m.width / MONUMENT_RATIO;
   const trace = tw(f, b(C.monumentStart), b(C.monumentEnd) - 2, 0, MONUMENT_TEASE, E.inOutSoft);
   const dissolve = prog(f, b(CUES.reveal.we), b(CUES.reveal.monumentGone) - b(CUES.reveal.we) + 8, E.out);
-  const mScale = 1 + 0.035 * prog(f, b(C.monumentStart), 150, E.inOutSoft) + 0.06 * dissolve;
-  const mOpacity = m.opacity * tw(f, b(C.monumentStart), b(C.monumentStart) + 30, 0, 1, E.inOut) * (1 - dissolve);
+  const mScale = 1 + 0.035 * prog(f, b(C.monumentStart), b(C.monumentEnd) - b(C.monumentStart), E.inOutSoft) + 0.06 * dissolve;
+  const mOpacity = m.opacity * tw(f, b(C.monumentStart), b(C.monumentStart) + 18, 0, 1, E.inOut) * (1 - dissolve);
 
   // ---- typing ----
   const tt = teaseType(L);
@@ -50,7 +50,7 @@ const Tease: React.FC = () => {
   const cursorO = (f < fSome ? (blinkOn ? 1 : 0) : 1 - prog(f, fSome, 8)) * (f >= fType ? 1 : 0);
 
   // ---- out: swept upward on the reveal's first beat ----
-  const out = prog(f, fOut, 7, E.in);
+  const out = prog(f, fOut, 6, E.in);
   const outStyle = (k: number): React.CSSProperties => ({ transform: `translateY(${-out * P(90) * k}px)`, opacity: 1 - out });
 
   const sSome = P(88);
@@ -99,7 +99,7 @@ const Tease: React.FC = () => {
             size={sSome}
             weight={FONTS.weight.light}
             charStyle={({ i, word }) => {
-              const p = prog(f, fSome + word * 12 + i * 1.4, 24, E.outSoft);
+              const p = prog(f, fSome + word * 7 + i * 0.9, 14, E.outSoft);
               return { transform: `translateY(${(1 - p) * 150}%)` };
             }}
           />
@@ -115,7 +115,7 @@ const Tease: React.FC = () => {
             weight={700}
             tracking={-0.03}
             charStyle={({ i, n }) => {
-              const p = prog(f, fDiff + i * 2.4, 30, E.inOutSoft);
+              const p = prog(f, fDiff + i * 1.6, 20, E.inOutSoft);
               const spread = (i - (n - 1) / 2) * sDiff * 0.09 * (1 - p);
               return {
                 opacity: p,

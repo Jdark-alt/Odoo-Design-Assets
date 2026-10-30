@@ -2,9 +2,9 @@
 // Odoo Experience Bangalore teaser: the one place for tempo, cues, colours,
 // fonts and formats. Every animation and the generated music read from here.
 //
-// To re-sync to a different track: change BPM (and BEAT_OFFSET_FRAMES if the
-// first downbeat of the new track is not at 0:00), or keep the grid and set
-// MUSIC.offsetSec. All cues are in BEATS, so the whole video follows.
+// The music is an edit of "Open Invitation" (120 BPM), cut on bar lines by
+// scripts/edit-music.ts from MUSIC_EDIT below. All cues are in BEATS, so the
+// picture, the effects and the music edit all follow the same grid.
 // ---------------------------------------------------------------------------
 
 export const FPS = 30;
@@ -12,7 +12,7 @@ export const BPM = 120;
 /** Shift the whole beat grid if the music's first downbeat is late. */
 export const BEAT_OFFSET_FRAMES = 0;
 export const FRAMES_PER_BEAT = (FPS * 60) / BPM; // 15 at 120 BPM
-export const TOTAL_BEATS = 60; // 30 seconds
+export const TOTAL_BEATS = 42; // 21 seconds
 
 /** beats -> frames on the grid */
 export const b = (beats: number) => Math.round(beats * FRAMES_PER_BEAT) + BEAT_OFFSET_FRAMES;
@@ -25,64 +25,63 @@ export const DURATION_FRAMES = b(TOTAL_BEATS);
 // lead/tail: frames a scene may draw before its start / after its end, so one
 // line can hand off into the next instead of cutting.
 export const SCENES = {
-  love: { start: 0, end: 12, lead: 0, tail: 15, title: 'Scene 1 · India loves the Odoo Experience' },
-  drop: { start: 12, end: 17, lead: 0, tail: 2, title: 'Scene 2 · So we are back' },
-  tease: { start: 17, end: 26, lead: 0, tail: 22, title: 'Scene 3 · The tease' },
-  reveal: { start: 26, end: 34, lead: 0, tail: 4, title: 'Scene 4 · The reveal' },
-  rapid: { start: 34, end: 44, lead: 0, tail: 6, title: 'Scene 5 · Rapid fire' },
-  outro: { start: 44, end: 60, lead: 2, tail: 0, title: 'Scene 6 · On tour' },
+  love: { start: 0, end: 7.5, lead: 0, tail: 8, title: 'Scene 1 · India loves the Odoo Experience' },
+  drop: { start: 7.5, end: 12, lead: 0, tail: 1, title: 'Scene 2 · So We Are Back!' },
+  tease: { start: 12, end: 18, lead: 0, tail: 14, title: 'Scene 3 · The tease' },
+  reveal: { start: 18, end: 24, lead: 0, tail: 3, title: 'Scene 4 · The reveal' },
+  rapid: { start: 24, end: 33, lead: 0, tail: 4, title: 'Scene 5 · Rapid fire' },
+  outro: { start: 33, end: 42, lead: 1, tail: 0, title: 'Scene 6 · On tour' },
 } as const;
 export type SceneId = keyof typeof SCENES;
 
 // ---- Cue sheet (beats, absolute) ------------------------------------------
 export const CUES = {
   love: {
-    india: 0, // "India" lands from the first frame; the map starts drawing from Gujarat
-    mapDone: 2.5,
-    loves: 3, // "loves" in Caveat; hearts rise from cities across the map
-    pins: 5, // pins appear across India...
-    converge: 6, // ...and gather into a heart over Gujarat
-    the: 8,
-    odooExperience: 9, // the anchor: logo + "Experience."
-    heartbeats: [8, 9, 10, 11],
+    india: 0, // "India" lands from the first frame; the map draws itself
+    mapDone: 1.6,
+    loves: 1, // "loves"; hearts pop up across the map
+    pin: 2.5, // a glowing pin drops onto Gujarat
+    the: 3,
+    odooExperience: 3.5, // the anchor: logo + "Experience."
+    pinPulses: [4, 5, 6],
   },
   drop: {
-    push: 11.5, // the camera eases toward the E of "Experience"
-    dive: 12.5, // ...then dives into it
-    drop: 13, // the E fills the frame; "So we are back." is cut out of its arms
-    exit: 16.5, // fly through the E into the dark
+    push: 5.5, // the camera eases toward the bottom stroke of the E
+    dive: 6.5, // ...then dives into it
+    whiteout: 8, // the white of the E takes over the screen (the drop)
+    words: 7.75, // "So We Are Back!" pops up as negative space
+    exit: 11, // zoom into the negative space (the B) into Scene 3
   },
   tease: {
-    butThisTime: 17.5, // types in, small
-    hold: 19, // suspense
-    something: 21, // "something is different." reveals slowly
-    different: 22.5,
-    monumentStart: 17, // partial Vidhana Soudha trace (to MONUMENT_TEASE)
-    monumentEnd: 26,
+    butThisTime: 12.5, // types in, small
+    something: 14.5, // "something is different." reveals
+    different: 15.25,
+    monumentStart: 12, // partial Vidhana Soudha trace (to MONUMENT_TEASE)
+    monumentEnd: 18,
   },
   reveal: {
-    we: 26,
-    are: 26.5,
-    bringing: 27,
-    the: 28,
-    odooExperience: 28.5, // the anchor of the line
-    to: 29,
-    you: 30, // the only highlighted word: pops come out of it
-    monumentGone: 27.5, // partial outline dissolves away
+    we: 18,
+    are: 18.5,
+    bringing: 19,
+    the: 19.5,
+    odooExperience: 20, // the anchor of the line
+    to: 21,
+    you: 22, // the only highlighted word, on the chorus drop
+    monumentGone: 19,
   },
   rapid: {
-    items: [34, 35, 36, 37, 38, 39], // Odoo 20 · Live demos · Success stories · Expert sessions · Networking · Community
-    more: 40, // "And so much more." one line, on the beat
-    moreOut: 43.25,
+    items: [24, 25, 26, 27, 28, 29], // Odoo 20 · Live demos · Success stories · Expert sessions · Networking · Community
+    more: 30, // "And so much more!" one line, on the beat
+    moreOut: 32.4,
   },
   outro: {
-    onTour: 44, // "The Odoo Experience is on tour."
-    nextStop: 48,
-    bangalore: 49,
-    monumentStart: 48, // full Vidhana Soudha trace
-    monumentEnd: 52,
-    lockup: 52, // Odoo Experience lockup: the anchor
-    comingSoon: 55, // smallest, last
+    onTour: 33, // "The Odoo Experience is on tour."
+    nextStop: 35,
+    bangalore: 35.75,
+    monumentStart: 35, // full Vidhana Soudha trace
+    monumentEnd: 38,
+    lockup: 38, // end card, on the track's last hit
+    comingSoon: 39.25, // bottom centre, smallest, last
   },
 } as const;
 
@@ -90,53 +89,54 @@ export const CUES = {
 export const MONUMENT_TEASE = 0.48;
 
 // ---- Audio -----------------------------------------------------------------
-// Two tracks: a music bed and a sound-effects layer, mixed in the video.
-// Drop a generated or licensed track into public/audio/ and point MUSIC at it;
-// set offsetSec so the track's first downbeat lands on 0:00 (negative = trim
-// the track's start), and volume to sit it under the effects.
-export const MUSIC = { file: 'audio/music-placeholder.wav', offsetSec: 0, volume: 0.78 };
-export const SFX = { file: 'audio/sfx.wav', volume: 0.9 };
+// Two tracks: the music edit and a sound-effects layer, mixed in the video.
+export const MUSIC = { file: 'audio/music-edit.wav', offsetSec: 0, volume: 0.85 };
+export const SFX = { file: 'audio/sfx.wav', volume: 0.85 };
 
-export type AudioCue = { beat: number; kind: 'hit' | 'impact' | 'riser' | 'lift' | 'whoosh' | 'swell' | 'pop' | 'tick' | 'section'; label: string; to?: number };
-/** Moments the music should mark, and the effects the SFX track plays. */
+/**
+ * The music edit. The source runs at 120 BPM with its first downbeat at
+ * firstDownbeatSec; `from` counts source beats from there. Each segment is
+ * placed at video beat `at`, cut on the beat with a short crossfade.
+ */
+export const MUSIC_SOURCE = { file: 'assets/audio/open-invitation.mp3', bpm: 120, firstDownbeatSec: 1.831 };
+export const MUSIC_EDIT: { at: number; from: number; beats: number; note: string }[] = [
+  { at: 0, from: 4, beats: 12, note: 'intro, swell, first drop on the whiteout' },
+  { at: 12, from: 50, beats: 6, note: 'drumless breakdown under the tease' },
+  { at: 18, from: 72, beats: 15, note: 'the stop, then the chorus drop on "you" and the montage' },
+  { at: 33, from: 103, beats: 9, note: 'last chorus bar, final hit on the end card, ring-out' },
+];
+
+export type AudioCue = { beat: number; kind: 'hit' | 'impact' | 'riser' | 'lift' | 'whoosh' | 'swell' | 'pop' | 'tick' | 'section' | 'cut'; label: string; to?: number };
+/** What the music does under the picture, and the effects the SFX track plays. */
 export const AUDIO_CUES: AudioCue[] = [
-  { beat: 0, kind: 'section', label: 'Intro: friendly groove from the first frame', to: 12 },
+  { beat: 0, kind: 'section', label: 'Music: intro (soft plucks)', to: 4 },
   { beat: 0, kind: 'hit', label: '"India" lands (soft thump)' },
-  { beat: 3, kind: 'pop', label: '"loves": hearts rise (light pops)' },
-  { beat: 5, kind: 'pop', label: 'Pins appear across India' },
-  { beat: 6, kind: 'whoosh', label: 'Pins gather into a heart over Gujarat (soft air)', to: 7.3 },
-  { beat: 9, kind: 'hit', label: '"Odoo Experience." lands' },
-  { beat: 11.5, kind: 'lift', label: 'Music lifts / thins; camera eases in', to: 12.5 },
-  { beat: 12.5, kind: 'whoosh', label: 'Dive into the E', to: 13 },
-  { beat: 13, kind: 'impact', label: 'DROP: "So we are back." (full groove)' },
-  { beat: 16.5, kind: 'whoosh', label: 'Fly through the E into the dark', to: 17 },
-  { beat: 17, kind: 'section', label: 'Tease: near silence, a low pulse', to: 26 },
-  { beat: 17.5, kind: 'tick', label: 'Soft keystrokes: "But this time,"' },
-  { beat: 22.5, kind: 'swell', label: '"different." fades up (soft airy swell, no clicks)', to: 25.5 },
-  { beat: 24, kind: 'riser', label: 'Gentle build back in', to: 26 },
-  { beat: 26, kind: 'hit', label: 'Groove returns: "We are bringing..."' },
-  { beat: 28.5, kind: 'hit', label: '"Odoo Experience"' },
-  { beat: 30, kind: 'impact', label: '"you": the hero, confetti sparkle' },
-  { beat: 34, kind: 'hit', label: '"Odoo 20"' },
-  { beat: 35, kind: 'pop', label: '"Live demos"' },
-  { beat: 36, kind: 'pop', label: '"Success stories"' },
-  { beat: 37, kind: 'pop', label: '"Expert sessions"' },
-  { beat: 38, kind: 'pop', label: '"Networking"' },
-  { beat: 39, kind: 'pop', label: '"Community"' },
-  { beat: 40, kind: 'hit', label: '"And so much more." (one line)' },
-  { beat: 44, kind: 'section', label: 'Outro: warm, lighter groove', to: 52 },
-  { beat: 49, kind: 'hit', label: '"Bangalore" lands' },
-  { beat: 52, kind: 'section', label: 'Resolve: final chord under the lockup, rings out', to: 60 },
+  { beat: 1, kind: 'pop', label: 'Hearts pop up across the map' },
+  { beat: 2.5, kind: 'pop', label: 'Glowing pin drops on Gujarat' },
+  { beat: 3.5, kind: 'hit', label: '"Odoo Experience." lands' },
+  { beat: 4, kind: 'lift', label: 'Music: the swell builds', to: 8 },
+  { beat: 6.5, kind: 'whoosh', label: 'Dive into the bottom stroke of the E', to: 8 },
+  { beat: 8, kind: 'impact', label: 'Music drop: white takes over, "So We Are Back!"' },
+  { beat: 11, kind: 'whoosh', label: 'Zoom into the negative space', to: 12 },
+  { beat: 12, kind: 'cut', label: 'Music cut: drumless breakdown', to: 18 },
+  { beat: 12.5, kind: 'tick', label: 'Soft keystrokes: "But this time,"' },
+  { beat: 15, kind: 'swell', label: '"different." fades up (soft swell)', to: 18 },
+  { beat: 18, kind: 'cut', label: 'Music cut: the stop (sustained hit), then a fill' },
+  { beat: 22, kind: 'impact', label: 'Music: chorus drop on "you", sparkle' },
+  { beat: 24, kind: 'pop', label: 'Montage: a light pop per item', to: 29 },
+  { beat: 30, kind: 'hit', label: '"And so much more!"' },
+  { beat: 33, kind: 'cut', label: 'Music cut: last chorus bar with its fill' },
+  { beat: 35.75, kind: 'hit', label: '"Bangalore" lands' },
+  { beat: 38, kind: 'section', label: 'Music: final hit, rings out under the end card', to: 42 },
 ];
 
 // ---- Camera shake and flashes (beats) --------------------------------------
 export const SHAKES: { beat: number; amp: number; frames: number }[] = [
-  { beat: 13, amp: 6, frames: 8 },
-  { beat: 26, amp: 5, frames: 7 },
-  { beat: 30, amp: 7, frames: 9 },
-  { beat: 34, amp: 6, frames: 7 },
+  { beat: 18, amp: 5, frames: 7 },
+  { beat: 22, amp: 7, frames: 9 },
+  { beat: 24, amp: 5, frames: 6 },
 ];
-export const FLASHES: { beat: number; color: 'purple' | 'white'; peak: number; frames: number }[] = [{ beat: 30, color: 'white', peak: 0.14, frames: 6 }];
+export const FLASHES: { beat: number; color: 'purple' | 'white'; peak: number; frames: number }[] = [];
 
 // ---- Brand: colours (from the Odoo Experience India design system) --------
 export const COLORS = {
@@ -190,4 +190,4 @@ export const END_CARD = {
 };
 
 /** Beats on which the pulli dot grid (the brand's background texture) flashes. */
-export const PULLI_BEATS = [0, 1];
+export const PULLI_BEATS = [0];

@@ -100,8 +100,8 @@ export const reverb = (inp: Bus, room = 0.86, damp = 0.35) => {
 };
 
 /** High-pass the rumble, soft-saturate from a high percentile, limit to a ceiling. */
-export const master = (L: Float32Array, R: Float32Array, opts: { percentileGain?: number; ceiling?: number; fadeOutSec?: number } = {}) => {
-  const { percentileGain = 1.0, ceiling = 0.89, fadeOutSec = 0.6 } = opts;
+export const master = (L: Float32Array, R: Float32Array, opts: { percentileGain?: number; ceiling?: number; fadeOutSec?: number; saturate?: boolean } = {}) => {
+  const { percentileGain = 1.0, ceiling = 0.89, fadeOutSec = 0.6, saturate = true } = opts;
   const hpL = new SVF();
   const hpR = new SVF();
   for (let n = 0; n < N; n++) {
@@ -114,8 +114,8 @@ export const master = (L: Float32Array, R: Float32Array, opts: { percentileGain?
   const p = samples[Math.floor(samples.length * 0.998)] || 1;
   const drive = percentileGain / p;
   for (let n = 0; n < N; n++) {
-    L[n] = Math.tanh(L[n] * drive);
-    R[n] = Math.tanh(R[n] * drive);
+    L[n] = saturate ? Math.tanh(L[n] * drive) : L[n] * drive;
+    R[n] = saturate ? Math.tanh(R[n] * drive) : R[n] * drive;
   }
   const look = Math.round(SR * 0.003);
   const g = new Float32Array(N).fill(1);

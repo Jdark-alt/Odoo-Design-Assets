@@ -1,5 +1,21 @@
 # Notes: assets, audio cue points, decisions
 
+## Revision 3 (feedback round 2): 21 seconds, on "Open Invitation"
+
+- **Length**: 21 s (42 beats at 120 BPM), cut to an edit of the generated track. "you" lands on the chorus drop, and the end card lands on the track's final hit.
+- **Scene 1** (0:00–0:04) is much faster:
+  - "India" lands on the first frame and "loves" comes in at 0:00.5.
+  - Hearts pop up across the map, and a **glowing pin** drops onto Gujarat and pulses on the beat. It replaces the heart of dots.
+  - "the Odoo Experience." is in by 0:02.
+- **Scene 2** (0:03.25–0:06):
+  - The camera dives into the **bottom stroke of the E** of "Experience". As the stroke's white takes over the screen on the drop, **"So We Are Back!"** pops up as negative space cut out of it.
+  - The camera then zooms into that negative space (the stem of the B), and Scene 3 starts in the dark.
+  - The E is drawn from its measured geometry, so it stays sharp at any zoom.
+- **Scene 3** (0:06–0:09) looks the same as before, with its timing compressed.
+- **Scene 4** (0:09–0:12) is centred on the vertical axis, with **"you"** centred on the chorus drop.
+- **Scene 5** (0:12–0:16.5) sets **"20" in Caveat** (yellow, on a straight brush line) on the Odoo 20 card, and adds the exclamation to **"And so much more!"**.
+- **Scene 6** (0:16.5–0:21) ends on a **centred** end card: the lockup, a larger **"bangalore"** in Caveat, and **"Coming soon."** fading in at the bottom centre.
+
 ## Revision 2 (feedback round 1)
 
 - **Scene 1** now reads "India loves the Odoo Experience.". "India loves" sits on top, the map is in the middle, and the Odoo Experience lockup is the widest line at the bottom: the anchor. "loves" is Caveat on the official straight `underline-line` (the dense scribble is gone). Pins from across India gather into a small **heart of dots** over Gujarat, which beats on the last four beats. The map fill is lighter, so the night ground shows through.
@@ -32,64 +48,57 @@ Everything below comes from the **Odoo Experience India** design system (the art
 
 - **India outline** (`src/brand/india.json`): built from Natural Earth 1:10m Admin 0, **India point-of-view** dataset (public domain), so the boundary matches India's official map, including all of Jammu & Kashmir, Ladakh and Arunachal Pradesh. Andaman & Nicobar and Lakshadweep are included.
 - **Vidhana Soudha line art** (`src/brand/vidhanaSoudha.ts`): front elevation with the dome, lantern and lion capital, drum, twelve columns, grand staircase, three-storey wings, wing domes and corner chhatris. Each stroke has its own slot on a 0..1 trace clock (Scene 3 stops at 48%; Scene 6 completes it).
-- **The "E" cutout** (Scene 2): the real Inter Bold "E", with its stem and arms measured from the glyph's pixels at render time, so the copy always sits inside the arms.
-- **Heart of pins**: the kit's official heart pop rising from 18 cities, then 43 city pins arranged evenly along a heart outline over Gandhinagar.
+- **The "E" dive** (Scene 2): the real Inter Bold "E", with its stem and arms measured from the glyph's pixels at render time. It's drawn as exact rectangles, so the camera can push into the bottom stroke until its white fills the frame.
+- **Hearts and the Gujarat pin**: the kit's official heart pop appearing over 40 cities, and a white location pin with a yellow core and a soft glow that drops onto Gandhinagar and pulses.
 - **People avatars** for "Networking": a head and shoulders in a night-frame disc, ringed in palette colours.
 - **Confetti**: palette pieces mixed with the kit's star, sparkle and heart pops.
 - **Grain**: fine animated noise so the dark gradients don't band after H.264 compression.
-- **Placeholder music and sound effects** (see below).
+- **Sound effects** (see below).
 
 ## Audio cue points
 
 Two tracks are mixed in the video:
-- `public/audio/music-placeholder.wav`: a friendly house groove in F major at 120 BPM, about -11 LUFS on its own.
+- `public/audio/music-edit.wav`: the 21 s edit of "Open Invitation". See the README for the edit list.
 - `public/audio/sfx.wav`: the sound effects.
 
-Both are generated from these cues (`npm run audio`). To use a generated or licensed music bed instead, see [MUSIC_PROMPT.md](MUSIC_PROMPT.md) and the README.
+Rebuild both with `npm run audio`.
 
 | Time | Beat | Frame (30 fps) | Type | Cue |
 | --- | --- | --- | --- | --- |
-| 0:00.00 to 0:06.00 | 0 | 0 | section | Intro: friendly groove from the first frame |
+| 0:00.00 to 0:02.00 | 0 | 0 | section | Music: intro (soft plucks) |
 | 0:00.00 | 0 | 0 | hit | "India" lands (soft thump) |
-| 0:01.50 | 3 | 45 | pop | "loves": hearts rise (light pops) |
-| 0:02.50 | 5 | 75 | pop | Pins appear across India |
-| 0:03.00 to 0:03.65 | 6 | 90 | whoosh | Pins gather into a heart over Gujarat (soft air) |
-| 0:04.50 | 9 | 135 | hit | "Odoo Experience." lands |
-| 0:05.75 to 0:06.25 | 11.5 | 173 | lift | Music lifts / thins; camera eases in |
-| 0:06.25 to 0:06.50 | 12.5 | 188 | whoosh | Dive into the E |
-| 0:06.50 | 13 | 195 | impact | DROP: "So we are back." (full groove) |
-| 0:08.25 to 0:08.50 | 16.5 | 248 | whoosh | Fly through the E into the dark |
-| 0:08.50 to 0:13.00 | 17 | 255 | section | Tease: near silence, a low pulse |
-| 0:08.75 | 17.5 | 263 | tick | Soft keystrokes: "But this time," |
-| 0:11.25 to 0:12.75 | 22.5 | 338 | swell | "different." fades up (soft airy swell, no clicks) |
-| 0:12.00 to 0:13.00 | 24 | 360 | riser | Gentle build back in |
-| 0:13.00 | 26 | 390 | hit | Groove returns: "We are bringing..." |
-| 0:14.25 | 28.5 | 428 | hit | "Odoo Experience" |
-| 0:15.00 | 30 | 450 | impact | "you": the hero, confetti sparkle |
-| 0:17.00 | 34 | 510 | hit | "Odoo 20" |
-| 0:17.50 | 35 | 525 | pop | "Live demos" |
-| 0:18.00 | 36 | 540 | pop | "Success stories" |
-| 0:18.50 | 37 | 555 | pop | "Expert sessions" |
-| 0:19.00 | 38 | 570 | pop | "Networking" |
-| 0:19.50 | 39 | 585 | pop | "Community" |
-| 0:20.00 | 40 | 600 | hit | "And so much more." (one line) |
-| 0:22.00 to 0:26.00 | 44 | 660 | section | Outro: warm, lighter groove |
-| 0:24.50 | 49 | 735 | hit | "Bangalore" lands |
-| 0:26.00 to 0:30.00 | 52 | 780 | section | Resolve: final chord under the lockup, rings out |
+| 0:00.50 | 1 | 15 | pop | Hearts pop up across the map |
+| 0:01.25 | 2.5 | 38 | pop | Glowing pin drops on Gujarat |
+| 0:01.75 | 3.5 | 53 | hit | "Odoo Experience." lands |
+| 0:02.00 to 0:04.00 | 4 | 60 | lift | Music: the swell builds |
+| 0:03.25 to 0:04.00 | 6.5 | 98 | whoosh | Dive into the bottom stroke of the E |
+| 0:04.00 | 8 | 120 | impact | Music drop: white takes over, "So We Are Back!" |
+| 0:05.50 to 0:06.00 | 11 | 165 | whoosh | Zoom into the negative space |
+| 0:06.00 to 0:09.00 | 12 | 180 | cut | Music cut: drumless breakdown |
+| 0:06.25 | 12.5 | 188 | tick | Soft keystrokes: "But this time," |
+| 0:07.50 to 0:09.00 | 15 | 225 | swell | "different." fades up (soft swell) |
+| 0:09.00 | 18 | 270 | cut | Music cut: the stop (sustained hit), then a fill |
+| 0:11.00 | 22 | 330 | impact | Music: chorus drop on "you", sparkle |
+| 0:12.00 to 0:14.50 | 24 | 360 | pop | Montage: a light pop per item |
+| 0:15.00 | 30 | 450 | hit | "And so much more!" |
+| 0:16.50 | 33 | 495 | cut | Music cut: last chorus bar with its fill |
+| 0:17.88 | 35.75 | 536 | hit | "Bangalore" lands |
+| 0:19.00 to 0:21.00 | 38 | 570 | section | Music: final hit, rings out under the end card |
 
 120 BPM, 1 beat = 0.5s = 15 frames.
 
 The effects play only where the picture moves:
-- a soft thump when "India", "Odoo Experience", "you" and "Bangalore" land
-- light pops for the hearts, pins and montage items
-- air for the camera dive into the E and the fly-through
+- light pops for the hearts, the pin and the montage items
+- soft thumps for landings
+- air for the dive into the E and the zoom into the B
 - soft keystrokes for "But this time,"
 - a breathy swell under "different."
-- a small sparkle for "you" and "And so much more."
+- small sparkles for "you", "And so much more!" and "Bangalore"
 
 ## Decisions to confirm
 
 - **Bangalore vs Bengaluru.** The brief's copy says "Bangalore", so the video uses it. The kit's lockup default is "bengaluru".
-- **"Odoo 20" purple card.** It's the only full-frame purple left (0.5 s, in the montage you approved). It can switch to the night ground if you'd rather have no full-frame purple at all.
+- **"Odoo 20" purple card.** It's the only full-frame purple left (0.5 s). It can switch to the night ground.
+- **Music licence.** The music is AI-generated ("Open Invitation"). Check the generator's terms for commercial use before publishing.
 - **End-card details.** Space is left under "Coming soon.". Fill `END_CARD.dateLine` / `END_CARD.detailLine` in `src/config.ts` when the date or venue is confirmed.
 - **Other formats.** 1:1 and 16:9 render from the same scenes. 4:5 is the art-directed version.

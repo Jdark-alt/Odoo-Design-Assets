@@ -1,6 +1,6 @@
 # Odoo Experience Bangalore: teaser
 
-A 30-second kinetic typography teaser for Odoo India, built in Remotion. Odoo Experience goes on tour, and the first stop is Bangalore. The primary format is LinkedIn portrait (1080 x 1350, 4:5, 30 fps, H.264). Square (1:1) and landscape (16:9) render from the same scenes.
+A 21-second kinetic typography teaser for Odoo India, built in Remotion. Odoo Experience goes on tour, and the first stop is Bangalore. The primary format is LinkedIn portrait (1080 x 1350, 4:5, 30 fps, H.264). Square (1:1) and landscape (16:9) render from the same scenes.
 
 Preview: [`renders/oxp-bangalore-teaser-4x5.mp4`](renders/oxp-bangalore-teaser-4x5.mp4)
 
@@ -26,7 +26,7 @@ npm run render
 REMOTION_CHROME=/path/to/chrome-headless-shell npm run render
 ```
 
-`npm run audio` regenerates both audio tracks from the cue sheet: the placeholder music bed (`npm run music`) and the sound effects (`npm run sfx`).
+`npm run audio` rebuilds both audio tracks: the music edit (`npm run music`, cut from `assets/audio/open-invitation.mp3`; needs `ffmpeg`, or uses Remotion's own) and the sound effects (`npm run sfx`).
 
 ## Where things are
 
@@ -39,22 +39,27 @@ REMOTION_CHROME=/path/to/chrome-headless-shell npm run render
 | `src/components/` | `KText` (per-character kinetic type with real kerning), brand parts (`Logo`, `Mark`, `Doodle`, `AppTile`), graphics (`IndiaMap`, `Monument`, `Kolam`, `Burst`, `Rays`, `PulliPulse`, ground and grain) |
 | `src/brand/` | Brand data extracted from the design system (logo, marks, doodles, app icons), the India outline and the Vidhana Soudha line art |
 | `public/brand/` | Inter and Caveat (variable woff2) and the night ground image from the design system |
-| `public/audio/` | `music-placeholder.wav` (music bed) and `sfx.wav` (sound effects), both generated, 24-bit WAV |
-| `scripts/make-music.ts` | Placeholder music bed: friendly house groove in F major, arranged on the cue sheet |
+| `assets/audio/open-invitation.mp3` | The source music track (120 BPM, 65 s) |
+| `public/audio/` | `music-edit.wav` (the 21 s edit of the track) and `sfx.wav` (sound effects), 24-bit WAV |
+| `scripts/edit-music.ts` | Cuts the music edit from the source on bar lines, following `MUSIC_EDIT` in the config |
 | `scripts/make-sfx.ts` | Sound effects, placed only where the picture moves |
 | `scripts/dsp.ts` | Shared synthesis, filter, reverb and mastering helpers |
-| `MUSIC_PROMPT.md` | Prompt for generating the music bed with Gemini / Lyria, with the timing map |
+| `MUSIC_PROMPT.md` | The prompt the music was generated from (Gemini / Lyria) |
 | `scripts/cue-sheet.ts` | Prints the audio cue points as a table |
 | `scripts/stills.ts`, `scripts/sheet.sh` | Render review stills and contact sheets |
 
-## Swapping in a real music track
+## Music
 
-The video mixes two audio tracks: the music bed (`MUSIC` in `src/config.ts`) and the sound effects (`SFX`). All timing is in beats on a 120 BPM grid (1 beat = 0.5 s = 15 frames).
+The music is an edit of "Open Invitation" (AI-generated with the prompt in [MUSIC_PROMPT.md](MUSIC_PROMPT.md)), at 120 BPM with its first downbeat at 1.831 s. `MUSIC_EDIT` in `src/config.ts` lists the cut: each segment starts on a source beat and lands on a video beat, and `scripts/edit-music.ts` joins them with 12 ms equal-power crossfades that end on the beat, so transients stay intact.
 
-1. Generate a track with the prompt in [MUSIC_PROMPT.md](MUSIC_PROMPT.md), or use a licensed one, and put it in `public/audio/`.
-2. Point `MUSIC.file` at it. Set `MUSIC.offsetSec` so its first downbeat lands on 0:00 (negative trims the track's start), and set `MUSIC.volume` so it sits under the effects.
-3. If the track's tempo isn't 120 BPM, set `BPM` instead. Every cue is in beats, so scenes, shakes and flashes follow.
-4. Move any cue in `CUES` that should land on a different musical moment (the drop, "you", "And so much more."), then run `npm run sfx` so the effects follow.
+| Video | Source | What |
+| --- | --- | --- |
+| 0:00–0:06 | 0:03.8–0:09.8 | Intro, swell, first drop on the whiteout ("So We Are Back!") |
+| 0:06–0:09 | 0:26.8–0:29.8 | Drumless breakdown under the tease |
+| 0:09–0:16.5 | 0:37.8–0:45.3 | The stop, then the chorus drop on "you" and the montage |
+| 0:16.5–0:21 | 0:53.3–0:57.8 | Last chorus bar, final hit on the end card, ring-out |
+
+To use another track, put it in `assets/audio/`, set `MUSIC_SOURCE` (file, BPM, first downbeat) and the `from` beats in `MUSIC_EDIT`, then run `npm run audio`. Every picture cue is in beats on the same 120 BPM grid (1 beat = 0.5 s = 15 frames).
 
 ## Layout
 

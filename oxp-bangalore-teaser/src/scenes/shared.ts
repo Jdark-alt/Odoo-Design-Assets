@@ -40,31 +40,37 @@ export const loveLayout = (L: Layout) => {
 };
 
 /**
- * The camera move from Scene 1 into the "E" of "Experience": the E ends up
- * filling most of the frame, centred, and Scene 2 cuts the copy out of it.
+ * The camera move from Scene 1 into the bottom stroke of the "E" of
+ * "Experience": it eases in, then dives until the stroke's white fills the
+ * whole frame on the drop. Scene 1 draws the start of the move; Scene 2 takes
+ * over (drawing the E as rectangles, so any zoom stays sharp) at HANDOFF_Z.
  */
+export const HANDOFF_Z = 7;
 export const diveCamera = (L: Layout) => {
   const lay = loveLayout(L);
   const a = eArms();
+  const arm = a.arms[a.arms.length - 1];
   const baseE = lay.topE + INTER_BASE * lay.sizeE;
-  const c = { x: lay.xE + ((a.left + a.right) / 2) * lay.sizeE, y: baseE + ((a.top + a.bottom) / 2) * lay.sizeE };
-  const capPx = (a.bottom - a.top) * lay.sizeE;
-  const Z = (L.box.h * (L.wide ? 0.86 : 0.74)) / capPx;
-  const T = { x: L.X(0.5), y: L.Y(0.5) };
-  /** pen origin, baseline and size of the giant E once the camera has landed */
-  const giant = { x: T.x + (lay.xE - c.x) * Z, baseline: T.y + (baseE - c.y) * Z, size: lay.sizeE * Z, arms: a };
-  const accel = Easing.bezier(0.6, 0, 0.92, 0.45);
+  const c = { x: lay.xE + ((a.left + arm.right) / 2) * lay.sizeE, y: baseE + ((arm.top + arm.bottom) / 2) * lay.sizeE };
+  const thick = (arm.bottom - arm.top) * lay.sizeE;
+  const len = (arm.right - a.left) * lay.sizeE;
+  const Z = Math.max((L.H * 1.1) / thick, (L.W * 1.1) / len);
+  const T = { x: L.W / 2, y: L.H / 2 };
+  const accel = Easing.bezier(0.55, 0, 0.9, 0.5);
   const at = (f: number) => {
     const push = prog(f, b(CUES.drop.push), b(CUES.drop.dive) - b(CUES.drop.push), E.inOutSoft);
     const z1 = 1 + 0.08 * push;
-    const k = prog(f, b(CUES.drop.dive), b(CUES.drop.drop) - b(CUES.drop.dive), accel);
+    const span = b(CUES.drop.whiteout) - b(CUES.drop.dive);
+    const k = prog(f, b(CUES.drop.dive), span, accel);
     const z = Math.exp(Math.log(z1) + (Math.log(Z) - Math.log(z1)) * k);
-    const kt = prog(f, b(CUES.drop.dive), b(CUES.drop.drop) - b(CUES.drop.dive), E.inOut);
+    const kt = prog(f, b(CUES.drop.dive), span * 0.7, E.inOut);
     const px = c.x + (T.x - c.x) * kt;
     const py = c.y + (T.y - c.y) * kt;
-    return { z, px, py, k, transform: `translate(${px}px, ${py}px) scale(${z}) translate(${-c.x}px, ${-c.y}px)` };
+    /** S1 coordinates -> screen */
+    const map = (x: number, y: number) => ({ x: px + (x - c.x) * z, y: py + (y - c.y) * z });
+    return { z, px, py, k, map, transform: `translate(${px}px, ${py}px) scale(${z}) translate(${-c.x}px, ${-c.y}px)` };
   };
-  return { c, T, Z, giant, at };
+  return { c, T, Z, at, lay, arms: a, baseE };
 };
 
 /** Where Scene 3 types "But this time,". */

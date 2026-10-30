@@ -96,32 +96,30 @@ const F = CUES.rapid;
 const O = CUES.outro;
 
 // Scene 1
-thump(L.india, 0.8);
-for (let j = 0; j < 6; j++) blip(L.loves + 0.2 + j * 0.28, 0.5, 76 + (j % 3) * 3, (j % 3 - 1) * 0.4);
-for (let j = 0; j < 9; j++) blip(L.pins + j * 0.07, 0.35, 84 + (j % 4) * 2, (j % 5 - 2) * 0.3);
-air(L.converge, L.converge + 1.3, 0.35, 900, 3000);
-blip(L.converge + 1.4, 0.6, 79);
-thump(L.odooExperience, 0.6);
-// Scene 2: the dive, the drop, the fly-through
-air(D.push + 0.5, D.drop, 0.75, 250, 6500, -0.1, 0.1);
-thump(D.drop, 1.0);
-air(D.exit, D.exit + 0.5, 0.5, 4000, 300, 0.1, -0.1);
+thump(L.india, 0.7);
+for (let j = 0; j < 7; j++) blip(L.loves + 0.15 + j * 0.22, 0.45, 76 + (j % 3) * 3, ((j % 3) - 1) * 0.4);
+blip(L.pin, 0.6, 72);
+thump(L.pin + 0.15, 0.35);
+thump(L.odooExperience, 0.5);
+// Scene 2: the dive into the stroke, the whiteout, the zoom into the B
+air(D.dive, D.whiteout, 0.7, 250, 6500, -0.1, 0.1);
+thump(D.whiteout, 0.8);
+blip(D.words + 0.25, 0.4, 79);
+air(D.exit, D.exit + 1, 0.55, 4500, 300, 0.1, -0.1);
 // Scene 3: soft keystrokes, then a swell under "different." (no clicks)
-for (let c = 0; c < 'But this time,'.length; c++) key(T.butThisTime + (4 + c * 2) / 15, 0.6 + 0.2 * Math.abs(rnd()), ((c % 5) - 2) * 0.08);
-swell(T.different - 0.25, R.we - 0.1, 0.55);
+for (let c = 0; c < 'But this time,'.length; c++) key(T.butThisTime + (3 + c * 1.4) / 15, 0.6 + 0.2 * Math.abs(rnd()), ((c % 5) - 2) * 0.08);
+swell(T.different - 0.25, R.we - 0.1, 0.5);
 // Scene 4
-blip(R.odooExperience, 0.4, 77);
-thump(R.you, 0.7);
-blip(R.you, 0.6, 79);
-sparkle(R.you, 2.5, 1, 22);
-// Scene 5: a light pop per item, a small sparkle for "And so much more."
-F.items.forEach((it, i) => blip(it, 0.45, 72 + i * 2, (i % 2 ? 0.25 : -0.25)));
-sparkle(F.more + 0.1, 1.5, 0.7, 10);
+blip(R.odooExperience, 0.35, 77);
+blip(R.you, 0.55, 79);
+sparkle(R.you, 2, 0.9, 18);
+// Scene 5: a light pop per item, a small sparkle for "And so much more!"
+F.items.forEach((it, i) => blip(it, 0.4, 72 + i * 2, i % 2 ? 0.25 : -0.25));
+sparkle(F.more + 0.1, 1.5, 0.6, 10);
 // Scene 6
-air(O.bangalore - 0.5, O.bangalore + 0.1, 0.3, 600, 3500);
-thump(O.bangalore, 0.55);
-sparkle(O.bangalore, 1.5, 0.5, 8);
-thump(O.lockup, 0.4);
+blip(O.bangalore, 0.45, 76);
+sparkle(O.bangalore, 1.2, 0.45, 8);
+sparkle(O.comingSoon, 1.5, 0.3, 6);
 
 const wet = reverb(send, 0.8, 0.45);
 const outL = new Float32Array(N);

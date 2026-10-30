@@ -1,23 +1,20 @@
-// Scene 2 (0:06-0:08.5): "So we are back."
-// The camera has dived into the "E" of "Experience" (Scene 1). On the drop the
-// giant letter fills the frame and the copy is cut out of its three arms, one
-// line per arm, with soft out-of-focus pins drifting behind for depth. Then the
-// camera flies through the gap between the arms into the dark of Scene 3.
-import React, { useMemo } from 'react';
+// Scene 2 (0:03.75-0:06): "So We Are Back!"
+// The camera keeps diving into the bottom stroke of the "E" of "Experience"
+// (picked up from Scene 1). As the stroke's white takes over the screen on the
+// drop, "So We Are Back!" pops up as negative space cut out of it. Then the
+// camera zooms into that negative space (the stem of the B), into Scene 3.
+import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, FONTS, SCENES, b } from '../config';
 import { useLayout } from '../lib/layout';
-import { E, drift, mix, pop, prog, rng } from '../lib/motion';
-import { layoutChars } from '../components/KText';
+import { inkBox } from '../lib/fonts';
+import { E, mix, pop, prog } from '../lib/motion';
+import { layoutChars, textWidth } from '../components/KText';
 import { SceneWindow } from '../components/Scene';
-import { diveCamera, loveLayout } from './shared';
+import { HANDOFF_Z, diveCamera } from './shared';
+import { Easing } from 'remotion';
 
 const C = CUES.drop;
-const LINES = [
-  { text: 'So we', weight: 700 },
-  { text: 'are', weight: FONTS.weight.light },
-  { text: 'back.', weight: 700 },
-];
 
 export const Scene2Drop: React.FC = () => (
   <SceneWindow id="drop">
@@ -28,113 +25,91 @@ export const Scene2Drop: React.FC = () => (
 const Drop: React.FC = () => {
   const f = useCurrentFrame();
   const L = useLayout();
+  const { P } = L;
   const cam = diveCamera(L);
-  const lay = loveLayout(L);
-  const fDrop = b(C.drop);
-  const fExit = Math.round(b(C.exit));
+  const view = cam.at(f);
+  const fWhite = b(C.whiteout);
+  const fExit = b(C.exit);
   const fEnd = b(SCENES.tease.start);
-  const bokeh = useMemo(() => {
-    const r = rng(17);
-    const cols = [COLORS.white, COLORS.white, COLORS.white, COLORS.yellow, COLORS.teal];
-    return Array.from({ length: 16 }, () => ({ x: r(), y: r(), s: 0.02 + r() * 0.09, o: 0.08 + r() * 0.2, col: cols[Math.floor(r() * cols.length)], depth: 0.3 + r() * 0.7, ph: r() * 6 }));
-  }, []);
-  if (f < fDrop || f > fEnd + 1) return null;
+  if (f < b(C.dive) || view.z < HANDOFF_Z || f >= fEnd) return null;
 
-  const g = cam.giant;
-  const a = g.arms;
-  const S = g.size;
-  // the whole word, at the same size and spacing as Scene 1's "Experience."
-  const chars = layoutChars('Experience.', lay.sizeE, 700, 'sans', -0.02).chars;
-  const k = S / lay.sizeE;
+  // ---- the letter E (and the rest of "Experience."), drawn in screen space ----
+  const { lay, arms: a, baseE } = cam;
+  const S = lay.sizeE;
+  const rect = (x0: number, y0: number, x1: number, y1: number) => {
+    const p = view.map(lay.xE + x0 * S, baseE + y0 * S);
+    const q = view.map(lay.xE + x1 * S, baseE + y1 * S);
+    return { x: p.x, y: p.y, width: q.x - p.x, height: q.y - p.y };
+  };
+  const eRects = [rect(a.left, a.top, a.stemRight, a.bottom), ...a.arms.map((arm) => rect(a.left, arm.top, arm.right, arm.bottom))];
+  const chars = layoutChars('Experience.', S, 700, 'sans', -0.02).chars.slice(1);
+  const white = f >= fWhite;
 
-  // hit settle on landing, then a slow push (no beat pulses here)
-  const settle = mix(1.025, 1, pop(f, fDrop, { damping: 18, stiffness: 260, mass: 0.6 }));
-  const push = 1 + 0.035 * prog(f, fDrop + 4, fExit - fDrop - 4, E.inOutSoft);
+  // ---- "So We Are Back!" as negative space, centred ----
+  const s1 = P(112);
+  const s2 = Math.min(P(250), (L.box.w * 0.9) / (textWidth('Back!', 100, 700, 'sans', -0.03) / 100));
+  const w1 = textWidth('So We Are', s1, 700, 'sans', -0.02);
+  const w2 = textWidth('Back!', s2, 700, 'sans', -0.03);
+  const cap1 = 0.727 * s1;
+  const cap2 = 0.727 * s2;
+  const gapY = s1 * 0.32;
+  const blockH = cap1 + gapY + cap2;
+  const base1 = L.H / 2 - blockH / 2 + cap1;
+  const base2 = base1 + gapY + cap2;
+  const x1 = (L.W - w1) / 2;
+  const x2 = (L.W - w2) / 2;
+  const words = pop(f, b(C.words), { damping: 13, stiffness: 240, mass: 0.6 });
+  const wordsScale = mix(0.72, 1, words);
 
-  // exit: fly through the gap between the middle and bottom arms
-  const gap = { x: g.x + (a.stemRight + (a.arms[1].right - a.stemRight) * 0.45) * S, y: g.baseline + ((a.arms[1].bottom + a.arms[2].top) / 2) * S };
-  const fly = prog(f, fExit, fEnd - fExit, E.in);
-  const flyZ = Math.exp(Math.log(10) * fly);
-  const camT = `translate(${gap.x}px, ${gap.y}px) scale(${flyZ}) translate(${-gap.x}px, ${-gap.y}px) translate(${cam.T.x}px, ${cam.T.y}px) scale(${settle * push}) translate(${-cam.T.x}px, ${-cam.T.y}px)`;
+  // hold: a slow push; exit: zoom into the stem of the B (negative space)
+  const hold = 1 + 0.03 * prog(f, fWhite, fExit - fWhite, E.inOutSoft);
+  const B = inkBox('B', s2, 700, FONTS.sans);
+  const stemW = (a.stemRight - a.left) * s2;
+  const focus = { x: x2 + B.left + stemW * 0.5, y: base2 - cap2 * 0.5 };
+  const k = prog(f, fExit, fEnd - fExit, Easing.bezier(0.6, 0, 0.95, 0.4));
+  const zoom = Math.exp(Math.log(Math.max(2, (L.H * 1.4) / stemW)) * k);
+  const scene = `translate(${focus.x} ${focus.y}) scale(${zoom * hold}) translate(${-focus.x} ${-focus.y})`;
+  const pop1 = `translate(${L.W / 2} ${L.H / 2}) scale(${wordsScale}) translate(${-L.W / 2} ${-L.H / 2})`;
 
-  // copy cut out of each arm: cap height ~58% of the arm, left-aligned inside the stem
-  const lines = LINES.map((l, i) => {
-    const arm = a.arms[Math.min(i, a.arms.length - 1)];
-    const thick = (arm.bottom - arm.top) * S;
-    let size = (thick * 0.6) / 0.727;
-    const x0 = g.x + a.left * S + thick * 0.42;
-    const maxW = g.x + arm.right * S - x0 - thick * 0.35;
-    const w = layoutChars(l.text, size, l.weight, 'sans', -0.02).width;
-    if (w > maxW) size *= maxW / w;
-    const baseline = g.baseline + ((arm.top + arm.bottom) / 2) * S + 0.727 * size * 0.5;
-    const clip = { x: g.x + a.left * S - 4, y: g.baseline + arm.top * S, w: (arm.right - a.left) * S + 8, h: thick };
-    const p = prog(f, fDrop + 2 + i * 3, 9, E.out);
-    return { ...l, size, x0, baseline, clip, dy: (1 - p) * thick * 1.05 };
-  });
-
-  const maskId = 'drop-cut';
+  const maskId = 'back-cut';
   return (
-    <div style={{ position: 'absolute', inset: 0, transform: camT, transformOrigin: '0 0', opacity: 1 - prog(f, fEnd - 3, 3) }}>
-      {/* out-of-focus pins drifting behind the letter */}
-      {bokeh.map((p, i) => {
-        const o = p.o * prog(f, fDrop, 10, E.out);
-        const x = p.x * L.W + drift(f, L.P(30) * p.depth, 80, i);
-        const y = p.y * L.H - (f - fDrop) * 0.6 * p.depth + drift(f, L.P(20), 70, i + 9);
-        const d = p.s * L.W;
-        return (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: x - d / 2,
-              top: y - d / 2,
-              width: d,
-              height: d,
-              borderRadius: '50%',
-              background: p.col,
-              opacity: o,
-              filter: `blur(${d * 0.18}px)`,
-              transform: `scale(${1 + (push - 1) * p.depth * 2})`,
-            }}
-          />
-        );
-      })}
-      <svg width={L.W} height={L.H} style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible' }}>
-        <defs>
-          {lines.map((l, i) => (
-            <clipPath key={i} id={`${maskId}-arm${i}`} clipPathUnits="userSpaceOnUse">
-              <rect x={l.clip.x} y={l.clip.y} width={l.clip.w} height={l.clip.h} />
-            </clipPath>
-          ))}
-          <mask id={maskId} maskUnits="userSpaceOnUse" x={-L.W} y={-L.H} width={L.W * 4} height={L.H * 4}>
-            <rect x={-L.W} y={-L.H} width={L.W * 4} height={L.H * 4} fill="white" />
-            {lines.map((l, i) => (
-              <g key={i} clipPath={`url(#${maskId}-arm${i})`}>
-                <text
-                  x={l.x0}
-                  y={l.baseline + l.dy}
-                  fontFamily={FONTS.sans}
-                  fontWeight={l.weight}
-                  fontSize={l.size}
-                  letterSpacing={`${-0.02 * l.size}px`}
-                  fill="black"
-                >
-                  {l.text}
-                </text>
-              </g>
-            ))}
-          </mask>
-        </defs>
-        <g mask={`url(#${maskId})`} fill={COLORS.white} fontFamily={FONTS.sans} fontWeight={700}>
-          {chars.map((c) =>
-            c.ch === ' ' ? null : (
-              <text key={c.i} x={g.x + c.x * k} y={g.baseline} fontSize={S}>
-                {c.ch}
+    <svg width={L.W} height={L.H} style={{ position: 'absolute', left: 0, top: 0, overflow: 'hidden' }}>
+      <defs>
+        <mask id={maskId} maskUnits="userSpaceOnUse" x={-L.W * 50} y={-L.H * 50} width={L.W * 100} height={L.H * 100}>
+          <rect x={-L.W * 50} y={-L.H * 50} width={L.W * 100} height={L.H * 100} fill="white" />
+          {f >= b(C.words) ? (
+            <g transform={pop1} fill="black" fontFamily={FONTS.sans} fontWeight={700} opacity={Math.min(1, words * 2)}>
+              <text x={x1} y={base1} fontSize={s1} letterSpacing={`${-0.02 * s1}px`}>
+                So We Are
               </text>
-            ),
-          )}
-        </g>
-      </svg>
-    </div>
+              <text x={x2} y={base2} fontSize={s2} letterSpacing={`${-0.03 * s2}px`}>
+                Back!
+              </text>
+            </g>
+          ) : null}
+        </mask>
+      </defs>
+      <g transform={scene} mask={`url(#${maskId})`} fill={COLORS.white}>
+        {white ? (
+          <rect x={-L.W * 50} y={-L.H * 50} width={L.W * 100} height={L.H * 100} />
+        ) : (
+          <>
+            {eRects.map((r, i) => (
+              <rect key={i} {...r} />
+            ))}
+            {view.z < 40
+              ? chars.map((c) => {
+                  const p = view.map(lay.xE + c.x, baseE);
+                  return (
+                    <text key={c.i} x={p.x} y={p.y} fontSize={S * view.z} fontFamily={FONTS.sans} fontWeight={700}>
+                      {c.ch}
+                    </text>
+                  );
+                })
+              : null}
+          </>
+        )}
+      </g>
+    </svg>
   );
 };

@@ -37,8 +37,8 @@ const Outro: React.FC = () => {
   const fSoon = b(C.comingSoon);
 
   // words that aren't the brand or the city leave before the end card
-  const leave = prog(f, fLock - 10, 12, E.inSoft);
-  const settle = prog(f, fLock - 4, 26, E.inOut); // lockup and city glide to the end card
+  const leave = prog(f, fLock - 8, 10, E.inSoft);
+  const settle = prog(f, fLock - 4, 20, E.inOut); // lockup and city glide to the centred end card
   const hold = drift(f, P(3), 150, 12);
 
   // ---- the anchor: logo + Experience, as wide as the safe area allows ----
@@ -60,15 +60,18 @@ const Outro: React.FC = () => {
   const yNext = r.y + P(48);
   const yCityA = yNext + sNext * 1.25;
 
-  // ---- end card layout ----
-  const sCityB = lk * 1.1;
-  const yLockB = Y(L.wide ? 0.24 : 0.3);
-  const yCityB = yLockB + lk + lk * 0.08;
-  const xCityB = X(0) + xExp;
-  const sSoon = P(44);
-  const ySoon = yCityB + sCityB * 1.25 + P(40);
+  // ---- end card layout: centred; lockup, then a larger "bangalore", then "Coming soon." at the bottom ----
+  const lockW = xExp + textWidth('Experience', sExp, 700, 'sans', -0.02);
+  const sCityB = Math.min(lk * 1.6, P(190));
+  const yLockB = Y(L.wide ? 0.22 : 0.3);
+  const yCityB = yLockB + lk * 1.18;
+  const xCityB = (L.W - textWidth('bangalore', sCityB, 700, 'hand')) / 2;
+  const sSoon = P(42);
+  const ySoon = L.box.y + L.box.h - sSoon * 1.05;
+  const wSoon = textWidth('Coming soon.', sSoon, FONTS.weight.light, 'sans', 0.02);
 
   const yLock = mix(yLockA, yLockB, settle);
+  const xLock = mix(X(0), (L.W - lockW) / 2, settle);
   const cityX = mix(X(0), xCityB, settle);
   const cityY = mix(yCityA, yCityB, settle);
   const citySize = mix(sCityA, sCityB, settle);
@@ -106,7 +109,7 @@ const Outro: React.FC = () => {
             left: mDomeX - mW * MONUMENT_DOME.x,
             top: mDomeY - mH * MONUMENT_DOME.y,
             opacity: mOpacity,
-            transform: `scale(${mix(1, 0.86, settle)})`,
+            transform: `translateY(${-settle * sSoon * 2.2}px) scale(${mix(1, 0.8, settle)})`,
             transformOrigin: '50% 100%',
           }}
         >
@@ -192,7 +195,7 @@ const Outro: React.FC = () => {
       </div>
 
       {/* the anchor: Odoo Experience lockup, present from the first beat to the last frame */}
-      <At x={X(0)} y={yLock + hold * (1 - settle)}>
+      <At x={xLock} y={yLock + hold * (1 - settle)}>
         <div style={{ position: 'relative', height: lk * 1.25, width: xExp + textWidth('Experience', sExp, 700, 'sans', -0.02) }}>
           <div style={{ position: 'absolute', left: 0, top: 0, clipPath: `inset(-10% ${(1 - prog(f, f0 + 4, 16, E.outSoft)) * 100}% -10% 0)` }}>
             <Logo height={lk} />
@@ -241,23 +244,23 @@ const Outro: React.FC = () => {
       ) : null}
 
       {f >= fSoon - 1 ? (
-        <At x={X(0) + xExp} y={ySoon}>
-          <div style={{ opacity: prog(f, fSoon, 24, E.outSoft), transform: `translateY(${(1 - prog(f, fSoon, 24, E.outSoft)) * P(14)}px)` }}>
-            <KText text="Coming soon." size={sSoon} weight={FONTS.weight.light} tracking={0.01} />
+        <At x={(L.W - wSoon) / 2} y={ySoon}>
+          <div style={{ opacity: prog(f, fSoon, 20, E.outSoft), transform: `translateY(${(1 - prog(f, fSoon, 20, E.outSoft)) * P(12)}px)` }}>
+            <KText text="Coming soon." size={sSoon} weight={FONTS.weight.light} tracking={0.02} />
           </div>
         </At>
       ) : null}
 
       {/* reserved: date / registration line, filled in from END_CARD when confirmed */}
       {END_CARD.dateLine ? (
-        <At x={X(0) + xExp} y={ySoon + sSoon * 1.6}>
+        <At x={(L.W - textWidth(END_CARD.dateLine, P(34), 700)) / 2} y={yCityB + sCityB * 1.35}>
           <div style={{ opacity: prog(f, fSoon + 10, 20, E.outSoft) }}>
             <KText text={END_CARD.dateLine} size={P(34)} weight={700} color={COLORS.white} />
           </div>
         </At>
       ) : null}
       {END_CARD.detailLine ? (
-        <At x={X(0) + xExp} y={ySoon + sSoon * 1.6 + P(50)}>
+        <At x={(L.W - textWidth(END_CARD.detailLine, P(28), FONTS.weight.regular)) / 2} y={yCityB + sCityB * 1.35 + P(50)}>
           <div style={{ opacity: prog(f, fSoon + 14, 20, E.outSoft) }}>
             <KText text={END_CARD.detailLine} size={P(28)} weight={FONTS.weight.regular} color={COLORS.inkMuted} />
           </div>

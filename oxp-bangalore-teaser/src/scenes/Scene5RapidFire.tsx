@@ -51,31 +51,40 @@ const Odoo20: React.FC<ItemProps> = ({ f, f0, L }) => {
   if (!on) return null;
   const { P, X, Y } = L;
   const wipeIn = prog(f, f0 - 2, 5, E.out);
-  const s20 = Math.min(P(700), fitSize('20', L.box.w * 0.95, 700, FONTS.sans, -0.04), L.box.h * 0.72);
+  const s20 = Math.min(P(860), fitSize('20', L.box.w * 0.7, 700, FONTS.hand), L.box.h * 0.78);
+  const w20 = textWidth('20', s20, 700, 'hand');
   const logoH = P(128);
+  const yTop = Y(L.wide ? 0.02 : 0.08);
   const k = mix(1.35, 1, inP);
   return (
     <>
       <div style={{ position: 'absolute', inset: 0, background: COLORS.purple, clipPath: `inset(${(1 - wipeIn) * 100}% 0 ${outP * 100}% 0)` }} />
       <div style={{ position: 'absolute', inset: 0, transform: `scale(${k}) rotate(${-3 + drift(f, 0.6, 20, 2)}deg) translateY(${-outP * L.H * 0.25}px)`, transformOrigin: '40% 50%', opacity: 1 - outP }}>
-        <At x={X(0.01)} y={Y(L.wide ? 0.04 : 0.1)}>
+        <At x={X(0.01)} y={yTop}>
           <Logo height={logoH} />
         </At>
-        <At x={X(0) - s20 * 0.04} y={Y(L.wide ? 0.04 : 0.1) + logoH * 1.15}>
-          <KText
-            text="20"
-            size={s20}
-            weight={700}
-            tracking={-0.04}
-            charStyle={({ i }) => {
-              const p = pop(f, f0 + i * 1.5, { damping: 12, stiffness: 360, mass: 0.5 });
-              return { transform: `translateY(${(1 - p) * s20 * 0.5}px) scale(${mix(0.6, 1, p)})`, opacity: p > 0.02 ? 1 : 0 };
-            }}
-          />
+        {/* "20" in Caveat, on a straight brush line */}
+        <At x={X(0.02)} y={yTop + logoH * 1.05}>
+          <div style={{ position: 'relative', width: w20, height: s20 }}>
+            <div style={{ position: 'absolute', left: s20 * 0.02, top: s20 * 0.84, width: w20 }}>
+              <Mark name="underline-line" color="yellow" width={w20} height={s20 * 0.07} stretch reveal={prog(f, f0 + 3, 6, E.out)} />
+            </div>
+            <KText
+              text="20"
+              size={s20}
+              family="hand"
+              weight={700}
+              color={COLORS.yellow}
+              charStyle={({ i }) => {
+                const p = pop(f, f0 + i * 1.5, { damping: 12, stiffness: 360, mass: 0.5 });
+                return { transform: `translateY(${(1 - p) * s20 * 0.4}px) scale(${mix(0.6, 1, p)}) rotate(${(1 - p) * (i ? 10 : -10)}deg)`, opacity: p > 0.02 ? 1 : 0 };
+              }}
+            />
+          </div>
         </At>
-        <At x={X(0) + textWidth('20', s20, 700, 'sans', -0.04) - s20 * 0.08} y={Y(L.wide ? 0.04 : 0.1) + logoH * 1.2}>
+        <At x={X(0.02) + w20 + P(10)} y={yTop + logoH * 1.2}>
           <div style={{ transform: `scale(${pop(f, f0 + 3, { damping: 9, stiffness: 300 })}) rotate(14deg)` }}>
-            <Mark name="sparkle-1" color="yellow" height={P(130)} />
+            <Mark name="sparkle-1" color="white" height={P(120)} />
           </div>
         </At>
       </div>
@@ -309,14 +318,14 @@ const Community: React.FC<ItemProps> = ({ f, f0, L }) => {
   );
 };
 
-// ---------------------------------------------------------------- "And so much more." one line, on the beat
+// ---------------------------------------------------------------- "And so much more!" one line, on the beat
 const MoreLine: React.FC<ItemProps> = ({ f, f0, L }) => {
   const fOut = b(C.moreOut);
   if (f < f0 - 5 || f > fOut + 9) return null;
   const { P, X, Y } = L;
   const parts = [
     { text: 'And so much ', weight: FONTS.weight.light },
-    { text: 'more.', weight: 700 },
+    { text: 'more!', weight: 700 },
   ];
   const unit = parts.reduce((w, p) => w + textWidth(p.text, 100, p.weight, 'sans', -0.01) / 100, 0);
   const s = Math.min(P(104), (L.box.w * 0.92) / unit);
