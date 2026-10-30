@@ -1,15 +1,13 @@
-// Scene 5 (0:17-0:23): rapid fire, one item per beat, then "So" "much" "more."
+// Scene 5 (0:17-0:22): rapid fire, one item per beat, then "And so much more." as one quiet line.
 import React, { useMemo } from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, FONTS, FRAMES_PER_BEAT, b } from '../config';
 import { Layout, useLayout } from '../lib/layout';
 import { fitSize } from '../lib/fonts';
-import { E, drift, mix, onBeats, pop, prog, punch } from '../lib/motion';
+import { E, drift, mix, pop, prog } from '../lib/motion';
 import { KText, textWidth } from '../components/KText';
 import { At, SceneWindow, lineMask } from '../components/Scene';
 import { AppTile, Logo, Mark } from '../components/Brand';
-import { Burst, Kolam, Rays } from '../components/Graphics';
-import { routeLine } from './shared';
 
 const C = CUES.rapid;
 const BEAT = FRAMES_PER_BEAT;
@@ -42,10 +40,7 @@ const Rapid: React.FC = () => {
       <ExpertSessions f={f} f0={i3} L={L} />
       <Networking f={f} f0={i4} L={L} />
       <Community f={f} f0={i5} L={L} />
-      <And f={f} f0={b(C.and) - 2} L={L} />
-      <Hit f={f} f0={b(C.so)} L={L} word="So" level={0} />
-      <Hit f={f} f0={b(C.much)} L={L} word="much" level={1} />
-      <More f={f} f0={b(C.more)} L={L} />
+      <MoreLine f={f} f0={b(C.more)} L={L} />
     </>
   );
 };
@@ -205,18 +200,25 @@ const ExpertSessions: React.FC<ItemProps> = ({ f, f0, L }) => {
   );
 };
 
-// ---------------------------------------------------------------- Networking: one line, every dot
+// ---------------------------------------------------------------- Networking: people, joined by one line
 const NET = [
-  [0.06, 0.48],
-  [0.3, 0.41],
-  [0.52, 0.53],
-  [0.86, 0.44],
-  [0.74, 0.68],
-  [0.46, 0.74],
-  [0.16, 0.69],
-  [0.3, 0.9],
-  [0.62, 0.92],
-  [0.92, 0.86],
+  [0.1, 0.5],
+  [0.38, 0.42],
+  [0.66, 0.5],
+  [0.88, 0.62],
+  [0.62, 0.75],
+  [0.32, 0.7],
+  [0.14, 0.86],
+  [0.5, 0.92],
+  [0.84, 0.9],
+];
+const LINKS = [
+  [0, 5],
+  [1, 4],
+  [2, 8],
+  [5, 7],
+  [3, 8],
+  [1, 5],
 ];
 const catmull = (pts: number[][]) => {
   let d = `M${pts[0][0]} ${pts[0][1]}`;
@@ -231,24 +233,37 @@ const catmull = (pts: number[][]) => {
   }
   return d;
 };
+/** A person in a round avatar: the network's nodes. */
+const Person: React.FC<{ x: number; y: number; r: number; k: number; ring: string }> = ({ x, y, r, k, ring }) => (
+  <g transform={`translate(${x} ${y}) scale(${k})`}>
+    <circle r={r} fill={COLORS.frame} stroke={ring} strokeWidth={r * 0.1} />
+    <circle cy={-r * 0.22} r={r * 0.27} fill={COLORS.white} />
+    <path d={`M${-r * 0.5} ${r * 0.56} C${-r * 0.5} ${r * 0.08} ${r * 0.5} ${r * 0.08} ${r * 0.5} ${r * 0.56} Z`} fill={COLORS.white} />
+  </g>
+);
+const RINGS = [COLORS.teal, COLORS.yellow, COLORS.cyan, COLORS.red];
 const Networking: React.FC<ItemProps> = ({ f, f0, L }) => {
   const { on, inP, outP } = env(f, f0);
-  const pts = useMemo(() => NET.map(([x, y]) => [L.X(x), L.Y(L.wide ? 0.2 + y * 0.8 : y)]), [L]);
+  const pts = useMemo(() => NET.map(([x, y]) => [L.X(x), L.Y(L.wide ? 0.12 + y * 0.85 : y)]), [L]);
   if (!on) return null;
   const { P, X, Y } = L;
-  const s = Math.min(P(170), fitSize('Networking', L.box.w * 0.98, 700, FONTS.sans, -0.02));
+  const s = Math.min(P(176), fitSize('Networking', L.box.w * 0.98, 700, FONTS.sans, -0.02));
   const draw = prog(f, f0, 9, E.inOut);
+  const links = prog(f, f0 + 3, 7, E.out);
+  const r = P(44);
   return (
-    <div style={{ position: 'absolute', inset: 0, opacity: 1 - outP, transform: `scale(${1 + outP * 0.1})` }}>
+    <div style={{ position: 'absolute', inset: 0, opacity: 1 - outP, transform: `scale(${1 + outP * 0.08})` }}>
       <svg width={L.W} height={L.H} style={{ position: 'absolute', left: 0, top: 0 }}>
-        <path d={catmull(pts)} fill="none" stroke={COLORS.teal} strokeWidth={P(7)} strokeLinecap="round" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1 - draw} />
-        {pts.map((p, i) => {
-          const reach = prog(f, f0 + (i / (pts.length - 1)) * 9 - 1, 4, E.back);
-          return <circle key={i} cx={p[0]} cy={p[1]} r={P(15) * reach} fill={COLORS.white} />;
-        })}
+        {LINKS.map(([a, c], i) => (
+          <line key={i} x1={pts[a][0]} y1={pts[a][1]} x2={mix(pts[a][0], pts[c][0], links)} y2={mix(pts[a][1], pts[c][1], links)} stroke={COLORS.white} strokeOpacity={0.3} strokeWidth={P(3)} strokeLinecap="round" />
+        ))}
+        <path d={catmull(pts)} fill="none" stroke={COLORS.teal} strokeWidth={P(6)} strokeLinecap="round" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1 - draw} />
+        {pts.map((p, i) => (
+          <Person key={i} x={p[0]} y={p[1]} r={r} k={pop(f, f0 + (i / (pts.length - 1)) * 8 - 1, { damping: 11, stiffness: 420, mass: 0.4 })} ring={RINGS[i % RINGS.length]} />
+        ))}
       </svg>
-      <At x={X(0) - s * 0.02} y={Y(L.wide ? 0.02 : 0.14)}>
-        <div style={{ transform: `scale(${mix(1.25, 1, inP)})`, transformOrigin: '0% 50%', ...lineMask(s) }}>
+      <At x={X(0) - s * 0.02} y={Y(L.wide ? 0.0 : 0.13)}>
+        <div style={{ transform: `scale(${mix(1.2, 1, inP)})`, transformOrigin: '0% 50%', ...lineMask(s) }}>
           <KText text="Networking" size={s} weight={700} tracking={-0.02} charStyle={({ i }) => ({ transform: `translateY(${(1 - prog(f, f0 + i * 0.3, 5, E.out)) * 150}%)` })} />
         </div>
       </At>
@@ -294,130 +309,51 @@ const Community: React.FC<ItemProps> = ({ f, f0, L }) => {
   );
 };
 
-// ---------------------------------------------------------------- "and": a breath
-const And: React.FC<ItemProps> = ({ f, f0, L }) => {
-  if (f < f0 - 1 || f > f0 + BEAT) return null;
+// ---------------------------------------------------------------- "And so much more." one line, on the beat
+const MoreLine: React.FC<ItemProps> = ({ f, f0, L }) => {
+  const fOut = b(C.moreOut);
+  if (f < f0 - 5 || f > fOut + 9) return null;
   const { P, X, Y } = L;
-  const s = P(50);
-  const w = textWidth('and', s, FONTS.weight.light, 'sans');
-  const p = pop(f, f0, { damping: 14, stiffness: 420, mass: 0.4 });
-  const out = prog(f, f0 + 6, 3, E.in);
-  const inhale = prog(f, f0 + 4, BEAT - 3, E.inSoft);
+  const parts = [
+    { text: 'And so much ', weight: FONTS.weight.light },
+    { text: 'more.', weight: 700 },
+  ];
+  const unit = parts.reduce((w, p) => w + textWidth(p.text, 100, p.weight, 'sans', -0.01) / 100, 0);
+  const s = Math.min(P(104), (L.box.w * 0.92) / unit);
+  const out = prog(f, fOut, 9, E.inSoft);
+  const y = Y(0.5) - s * 0.5 + drift(f, P(3), 90, 5);
+  let x = X(0);
   return (
-    <>
-      <div
-        style={{
-          position: 'absolute',
-          left: X(0.5),
-          top: Y(0.5),
-          width: L.W * 1.2,
-          height: L.W * 1.2,
-          marginLeft: -L.W * 0.6,
-          marginTop: -L.W * 0.6,
-          borderRadius: '50%',
-          border: `${P(2)}px solid rgba(255,255,255,0.5)`,
-          transform: `scale(${mix(1, 0.02, inhale)})`,
-          opacity: inhale > 0 && inhale < 1 ? 0.6 * Math.sin(inhale * Math.PI) : 0,
-        }}
-      />
-      <At x={X(0.5) - w / 2} y={Y(0.5) - s / 2}>
-        <div style={{ transform: `scale(${p * (1 - out * 0.6)})`, opacity: 1 - out }}>
-          <KText text="and" size={s} weight={FONTS.weight.light} />
-        </div>
-      </At>
-    </>
+    <div style={{ position: 'absolute', inset: 0, opacity: 1 - out, transform: `translateY(${-out * P(40)}px)` }}>
+      {parts.map((p, j) => {
+        const left = x;
+        const w = textWidth(p.text, s, p.weight, 'sans', -0.01);
+        x += w;
+        return (
+          <At key={j} x={left} y={y}>
+            <div style={lineMask(s)}>
+              <KText
+                text={p.text}
+                size={s}
+                weight={p.weight}
+                tracking={-0.01}
+                charStyle={({ word }) => {
+                  // words land just ahead of the beat, one after another
+                  const k = prog(f, f0 - 4 + (j === 0 ? word : 3) * 2, 8, E.out);
+                  return { transform: `translateY(${(1 - k) * 150}%)` };
+                }}
+              />
+            </div>
+            {j === 1 ? (
+              <div style={{ position: 'absolute', left: w - s * 0.05, top: -s * 0.05, transform: `scale(${pop(f, f0 + 4, { damping: 11, stiffness: 240 })}) rotate(${14 + drift(f, 4, 50, 2)}deg)`, transformOrigin: '0% 100%' }}>
+                <div style={{ transform: 'translateY(-100%)' }}>
+                  <Mark name="sparkle-1" color="yellow" height={s * 0.5} />
+                </div>
+              </div>
+            ) : null}
+          </At>
+        );
+      })}
+    </div>
   );
 };
-
-// ---------------------------------------------------------------- So / much: hard hits, each bigger
-const Hit: React.FC<ItemProps & { word: string; level: number }> = ({ f, f0, L, word, level }) => {
-  if (f < f0 || f >= f0 + BEAT) return null;
-  const { P, X, Y } = L;
-  const s =
-    level === 0
-      ? Math.min(P(600), fitSize(word, L.box.w * 0.72, 700, FONTS.sans, -0.04), L.box.h * 0.75)
-      : Math.min(fitSize(word, L.box.w, 700, FONTS.sans, -0.04), L.box.h * 0.75);
-  const w = textWidth(word, s, 700, 'sans', -0.04);
-  const slam = prog(f, f0, 4, E.out);
-  const ring = punch(f, f0 + 4, level === 0 ? 0.05 : 0.07, 4);
-  const from = level === 0 ? 2.6 : 3.4;
-  const out = prog(f, f0 + BEAT - 3, 3, E.in);
-  const x = level === 0 ? X(0.02) : L.box.x + (L.box.w - w) / 2;
-  const y = level === 0 ? Y(L.wide ? 0.08 : 0.2) : L.box.y + (L.box.h - s * 0.8) / 2 - s * 0.12;
-  return (
-    <At x={x} y={y}>
-      <div
-        style={{
-          transform: `scale(${mix(from, 1, slam) * ring * (1 + out * 0.5)}) rotate(${(1 - slam) * (level === 0 ? -8 : 6)}deg)`,
-          transformOrigin: '50% 55%',
-          opacity: 1 - out,
-          filter: out > 0 ? `blur(${out * P(14)}px)` : undefined,
-        }}
-      >
-        <KText text={word} size={s} weight={700} tracking={-0.04} />
-      </div>
-    </At>
-  );
-};
-
-// ---------------------------------------------------------------- more. : the biggest moment
-const More: React.FC<ItemProps> = ({ f, f0, L }) => {
-  const fEnd = b(CUES.outro.onTour);
-  if (f < f0 || f > fEnd + 2) return null;
-  const { P, X, Y } = L;
-  const s = Math.min(fitSize('more.', L.box.w, 700, FONTS.sans, -0.04), L.box.h * 0.6);
-  const w = textWidth('more.', s, 700, 'sans', -0.04);
-  const x = L.box.x + (L.box.w - w) / 2;
-  const y = L.box.y + (L.box.h - s * 0.75) / 2 - s * 0.14;
-  const cx = x + w / 2;
-  const cy = y + s * 0.55;
-  const slam = prog(f, f0, 5, E.out);
-  const ring = punch(f, f0 + 5, 0.08, 5);
-  const zoom = 1 + 0.07 * prog(f, f0 + 4, fEnd - f0 - 20, E.inOutSoft);
-  const beats = onBeats(f, b(C.more + 1), b(C.settle) + 2, BEAT, 0.035, 3);
-  const leave = prog(f, b(C.settle) - 2, 12, E.inSoft);
-
-  // purple ground collapses into Scene 6's metro line
-  const r = routeLine(L);
-  const fold = prog(f, b(C.settle) + 1, fEnd - b(C.settle) + 1, E.inOut);
-  const top = mix(0, r.y - r.thickness / 2, fold);
-  const bottom = mix(L.H, r.y + r.thickness / 2, fold);
-
-  return (
-    <>
-      <div style={{ position: 'absolute', left: 0, top, width: L.W, height: bottom - top, background: COLORS.purple }} />
-      <div style={{ position: 'absolute', left: 0, top, width: L.W, height: bottom - top, overflow: 'hidden', opacity: 1 - leave }}>
-        <div style={{ position: 'absolute', left: cx, top: cy, transform: `translate(-50%, -50%) scale(${zoom * 1.05})`, opacity: 0.2 }}>
-          <Kolam cols={5} rows={6} pitch={Math.min(P(160), (L.H * 0.9) / 13)} draw={prog(f, f0 + 2, 26, E.inOut)} dots={prog(f, f0, 10)} stroke={0.12} />
-        </div>
-      </div>
-      <Rays x={cx} y={cy} start={f0} count={22} r0={w * 0.42} r1={Math.max(L.W, L.H) * 0.75} color={COLORS.white} width={P(12)} dur={18} rings={3} seed={13} />
-      <Rays x={cx} y={cy} start={f0 + 2} count={12} r0={w * 0.4} r1={Math.max(L.W, L.H) * 0.5} color={COLORS.yellow} width={P(9)} dur={16} rings={0} seed={21} />
-      <div style={{ position: 'absolute', inset: 0, opacity: 1 - leave, transform: `scale(${1 - leave * 0.35})`, transformOrigin: `${(cx / L.W) * 100}% ${(cy / L.H) * 100}%` }}>
-        <At x={x} y={y}>
-          <div style={{ transform: `scale(${mix(5, 1, slam) * ring * zoom * beats}) rotate(${(1 - slam) * -10}deg)`, transformOrigin: '50% 55%' }}>
-            <KText text="more." size={s} weight={700} tracking={-0.04} />
-          </div>
-        </At>
-        <At x={x - P(70)} y={y - P(90)}>
-          <div style={{ transform: `scale(${pop(f, f0 + 4, { damping: 9, stiffness: 260 })}) rotate(-24deg)` }}>
-            <Mark name="pop-fan" color="yellow" width={P(200)} />
-          </div>
-        </At>
-        <At x={x + w - P(30)} y={y + s * 0.72}>
-          <div style={{ transform: `scale(${pop(f, f0 + 6, { damping: 9, stiffness: 260 })}) rotate(${150 + drift(f, 6, 40, 4)}deg)` }}>
-            <Mark name="pop-fan" color="teal" width={P(170)} />
-          </div>
-        </At>
-        <At x={x + w - P(10)} y={y - P(40)}>
-          <div style={{ transform: `scale(${pop(f, f0 + 8, { damping: 9, stiffness: 260 })}) rotate(${10 + (f - f0) * 0.8}deg)` }}>
-            <Mark name="star" color="yellow" height={P(86)} />
-          </div>
-        </At>
-      </div>
-      <Burst x={cx} y={cy} start={f0} count={160} seed={44} speed={P(58)} scale={L.s * 1.35} gravity={0.75} />
-      <Burst x={cx} y={cy} start={b(C.more + 1)} count={40} seed={45} speed={P(36)} scale={L.s * 1.1} gravity={0.6} marks={['star', 'sparkle-1', 'heart']} />
-    </>
-  );
-};
-

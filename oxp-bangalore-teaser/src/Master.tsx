@@ -1,6 +1,6 @@
 import React from 'react';
-import { AbsoluteFill, Audio, staticFile, useCurrentFrame } from 'remotion';
-import { CUES, PULLI_BEATS, SCENES, b } from './config';
+import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame } from 'remotion';
+import { CUES, FPS, MUSIC, PULLI_BEATS, SCENES, SFX, b } from './config';
 import { FontGate } from './lib/fonts';
 import { E, tw } from './lib/motion';
 import { Flashes, Grain, Ground, PulliPulse, useShake } from './components/Graphics';
@@ -48,9 +48,26 @@ export const Stage: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   );
 };
 
+/** Music bed and sound effects as two tracks (see MUSIC / SFX in config.ts). */
+const Soundtrack: React.FC = () => {
+  const shift = Math.round(MUSIC.offsetSec * FPS);
+  return (
+    <>
+      {shift >= 0 ? (
+        <Sequence from={shift}>
+          <Audio src={staticFile(MUSIC.file)} volume={MUSIC.volume} />
+        </Sequence>
+      ) : (
+        <Audio src={staticFile(MUSIC.file)} volume={MUSIC.volume} startFrom={-shift} />
+      )}
+      <Audio src={staticFile(SFX.file)} volume={SFX.volume} />
+    </>
+  );
+};
+
 export const Master: React.FC<{ music?: boolean }> = ({ music = true }) => (
   <Stage>
     <Scenes />
-    {music ? <Audio src={staticFile('audio/oxp-teaser-120bpm.wav')} /> : null}
+    {music ? <Soundtrack /> : null}
   </Stage>
 );

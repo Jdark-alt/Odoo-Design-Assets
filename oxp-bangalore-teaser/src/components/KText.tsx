@@ -73,7 +73,6 @@ export const KText: React.FC<KTextProps> = ({ text, size, weight = 700, family =
               top: 0,
               display: 'block',
               transformOrigin: '50% 60%',
-              willChange: 'transform',
               ...(charStyle ? charStyle(c) : null),
             }}
           >

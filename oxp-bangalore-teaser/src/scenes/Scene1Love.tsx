@@ -1,13 +1,17 @@
-// Scene 1 (0:00-0:06): "Every year," / "India loves to gather" / "for the Odoo Experience."
+// Scene 1 (0:00-0:06): "India loves the Odoo Experience."
+// The map draws itself, hearts rise from cities, pins from across India gather
+// into a heart over Gujarat, and the Odoo Experience lockup lands as the anchor.
+// Over its last second the camera dives into the "E" of "Experience" (Scene 2).
 import React, { useMemo } from 'react';
 import { useCurrentFrame } from 'remotion';
-import { COLORS, CUES, FONTS, FRAMES_PER_BEAT, b } from '../config';
+import { COLORS, CUES, FONTS, b } from '../config';
 import { useLayout } from '../lib/layout';
-import { E, drift, mix, onBeats, pop, prog, punch, rng, tw } from '../lib/motion';
+import { E, drift, mix, pop, prog, punch, rng, tw } from '../lib/motion';
 import { KText, textWidth } from '../components/KText';
 import { At, SceneWindow, lineMask } from '../components/Scene';
 import { LOGO_RATIO, Logo, Mark } from '../components/Brand';
-import { INDIA_CITIES, INDIA_RATIO, INDIA_VB, IndiaMap } from '../components/Graphics';
+import { INDIA_CITIES, INDIA_VB, IndiaMap } from '../components/Graphics';
+import { diveCamera, loveLayout } from './shared';
 
 const C = CUES.love;
 const HOME = 'gandhinagar'; // Odoo Experience's usual home in Gujarat
@@ -23,152 +27,100 @@ export const Scene1Love: React.FC = () => (
 const Love: React.FC = () => {
   const f = useCurrentFrame();
   const L = useLayout();
-  const { P, X, Y } = L;
+  const { P, X } = L;
+  const lay = loveLayout(L);
+  const cam = diveCamera(L);
+  if (f >= b(CUES.drop.drop)) return null;
 
-  // ---- slowdown into the drop (Scene 2's first half-second) ----
-  const fSlow = b(CUES.drop.slowdown);
-  const fDrop = b(CUES.drop.drop);
-  const slow = tw(f, fSlow, fDrop - 2, 0, 1, E.inOutSoft);
-  const suck = tw(f, fDrop - 5, fDrop, 0, 1, E.in);
-  const sceneScale = mix(1, 0.93, slow) * mix(1, 0.35, suck);
-  const sceneOpacity = mix(1, 0.6, slow) * (1 - suck);
+  // the camera: a gentle push, then the dive into the E (Scene 2 lands it)
+  const diving = f >= b(CUES.drop.push);
+  const others = 1 - prog(f, b(CUES.drop.dive), 6, E.inSoft); // everything but the lockup clears
 
-  // ---- map stage ----
-  const mapH = Math.min(L.box.h * 0.83, (L.box.w * (L.wide ? 0.46 : 1)) / INDIA_RATIO);
-  const mapW = mapH * INDIA_RATIO;
-  const mapX = L.box.x + L.box.w - mapW;
-  const mapY = L.box.y + (L.box.h - mapH) * (L.wide ? 0.5 : 0.62);
+  // ---- map ----
+  const { mapW, mapH, mapX, mapTop } = lay;
   const toMap = (c: string) => {
     const p = INDIA_CITIES[c];
     return { x: (p[0] / INDIA_VB[2]) * mapW, y: (p[1] / INDIA_VB[3]) * mapH };
   };
   const fIndia = b(C.india);
-  const draw = tw(f, fIndia - 2, b(C.mapDone), 0, 1, E.inOut);
-  const fill = tw(f, fIndia + 10, b(C.mapDone) + 6, 0, 0.82, E.inOutSoft);
-  const mapIn = pop(f, fIndia - 2, { damping: 16, stiffness: 120 });
-  const mapScale = mix(1.08, 1, mapIn) * (1 + 0.035 * prog(f, fIndia, 160, E.inOutSoft)) * punch(f, b(C.loves), 0.012, 5);
+  const draw = tw(f, fIndia, b(C.mapDone), 0, 1, E.inOut);
+  const fill = tw(f, fIndia + 12, b(C.mapDone) + 10, 0, 0.6, E.inOutSoft);
+  const mapIn = pop(f, fIndia, { damping: 16, stiffness: 120 });
+  const mapScale = mix(1.06, 1, mapIn) * (1 + 0.03 * prog(f, fIndia, 150, E.inOutSoft));
   const home = toMap(HOME);
 
-  // ---- text sizes ----
-  const sEvery = P(60);
-  const sIndia = P(300);
-  const sLoves = P(230);
-  const sGather = P(132);
-  const sFor = P(58);
-  const lockH = P(98);
-  const wEvery = textWidth('Every ', sEvery, FONTS.weight.light);
-  const wTo = textWidth('to ', sGather, FONTS.weight.light);
-  const wIndia = textWidth('India', sIndia, 700, 'sans', -0.03);
-  const wLoves = textWidth('loves', sLoves, 700, 'hand');
-
-  const yEvery = Y(0.02);
-  const yIndia = Y(0.075);
-  const yLoves = yIndia + sIndia * 0.86;
-  const yGather = Y(0.56);
-  const yFor = Y(0.745);
-  const yLock = Y(0.8);
-  const xLoves = X(0) + Math.min(wIndia * 0.42, L.box.w - wLoves - P(140));
-
-  const hold = drift(f, P(5), 120, 2);
-  const everyMove = prog(f, fIndia - 5, 11, E.inOut);
+  const wLoves = textWidth('loves', lay.sLoves, 700, 'hand');
+  const hold = drift(f, P(4), 120, 2);
 
   return (
-    <div style={{ position: 'absolute', inset: 0, transform: `scale(${sceneScale})`, opacity: sceneOpacity, transformOrigin: '50% 50%' }}>
+    <div style={{ position: 'absolute', inset: 0, transform: diving ? cam.at(f).transform : undefined, transformOrigin: '0 0' }}>
       {/* ------------------------------------------------ India map */}
       <div
         style={{
           position: 'absolute',
           left: mapX,
-          top: mapY,
+          top: mapTop,
           width: mapW,
           height: mapH,
           transform: `scale(${mapScale}) translateY(${drift(f, P(4), 140, 7)}px)`,
           transformOrigin: `${(home.x / mapW) * 100}% ${(home.y / mapH) * 100}%`,
-          opacity: tw(f, fIndia - 2, fIndia + 4, 0, 1),
+          opacity: others,
         }}
       >
-        <IndiaMap width={mapW} draw={draw} fill={fill} strokeWidth={P(3.2)} />
-        <Hearts f={f} toMap={toMap} size={P(34)} rise={P(170)} />
-        <Pins f={f} toMap={toMap} home={home} dot={P(13)} />
+        <IndiaMap width={mapW} draw={draw} fill={fill} strokeWidth={P(3)} />
+        <Hearts f={f} toMap={toMap} size={P(30)} rise={P(150)} />
+        <HeartOfPins f={f} toMap={toMap} home={home} dot={P(9)} width={P(120)} />
       </div>
 
-      {/* ------------------------------------------------ "Every year," */}
-      <At x={X(0.035)} y={mix(Y(L.wide ? 0.42 : 0.38), yEvery, everyMove) + hold}>
-        <div style={{ display: 'flex', transform: `scale(${mix(1.75, 1, everyMove) * punch(f, b(C.everyYear) + 2, 0.22, 5) * punch(f, b(C.everyYear + 1), 0.07, 4)})`, transformOrigin: '0% 0%', ...lineMask(sEvery) }}>
-          <KText text="Every " size={sEvery} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, b(C.everyYear) + i * 1.2, 11)} />
-          <KText text="year," size={sEvery} weight={700} charStyle={({ i }) => rise(f, b(C.everyYear) + 5 + i * 1.2, 11)} style={{ marginLeft: 0 }} />
+      {/* ------------------------------------------------ "India" */}
+      <At x={X(0) - lay.sIndia * 0.03} y={lay.yTop + hold}>
+        <div style={{ opacity: others }}>
+          <KText
+            text="India"
+            size={lay.sIndia}
+            weight={700}
+            tracking={-0.03}
+            charStyle={({ i }) => {
+              const p = pop(f, fIndia + i * 2, { damping: 11, stiffness: 230, mass: 0.7 });
+              return {
+                transform: `translateY(${(1 - p) * -lay.sIndia * 0.6}px) scale(${mix(1.5, 1, p)}) rotate(${(1 - p) * (i % 2 ? 9 : -9)}deg)`,
+                opacity: Math.min(1, p * 3),
+              };
+            }}
+          />
         </div>
       </At>
 
-      {/* ------------------------------------------------ "India" */}
-      <At x={X(0) - sIndia * 0.03} y={yIndia + hold * 0.6}>
-        <KText
-          text="India"
-          size={sIndia}
-          weight={700}
-          tracking={-0.03}
-          charStyle={({ i }) => {
-            const p = pop(f, fIndia + i * 2, { damping: 11, stiffness: 210, mass: 0.8 });
-            return {
-              transform: `translateY(${(1 - p) * -sIndia * 0.55}px) scale(${mix(1.6, 1, p)}) rotate(${(1 - p) * (i % 2 ? 9 : -9)}deg)`,
-              opacity: Math.min(1, p * 3),
-            };
-          }}
-        />
-      </At>
-
-      {/* ------------------------------------------------ "loves" + heart */}
-      <At x={xLoves} y={yLoves + hold * 0.4}>
-        <div style={{ position: 'relative' }}>
+      {/* ------------------------------------------------ "loves": Caveat, on a straight brush line */}
+      <At x={lay.xLoves} y={lay.lovesTop + hold}>
+        <div style={{ position: 'relative', opacity: others }}>
+          <div style={{ position: 'absolute', left: lay.sLoves * 0.02, top: lay.sLoves * 0.86, width: wLoves }}>
+            <Mark name="underline-line" color="yellow" width={wLoves} height={lay.sLoves * 0.1} stretch reveal={prog(f, b(C.loves) + 4, 8, E.inOut)} />
+          </div>
           <KText
             text="loves"
-            size={sLoves}
+            size={lay.sLoves}
             family="hand"
             weight={700}
             color={COLORS.yellow}
             charStyle={({ i }) => {
-              const p = pop(f, b(C.loves) + i * 1.6, { damping: 10, stiffness: 230, mass: 0.6 });
-              return { transform: `translateY(${(1 - p) * P(50)}px) scale(${mix(0.3, 1, p)}) rotate(${(1 - p) * -14}deg)`, opacity: Math.min(1, p * 4) };
+              const p = pop(f, b(C.loves) + i * 1.4, { damping: 11, stiffness: 240, mass: 0.6 });
+              return { transform: `translateY(${(1 - p) * P(40)}px) scale(${mix(0.4, 1, p)}) rotate(${(1 - p) * -12}deg)`, opacity: Math.min(1, p * 4) };
             }}
           />
-          <div style={{ position: 'absolute', left: sLoves * 0.02, top: sLoves * 0.86, width: wLoves - sLoves * 0.04 }}>
-            <Mark name="underline-scribble" color="yellow" width={wLoves - sLoves * 0.04} height={sLoves * 0.24} stretch reveal={prog(f, b(C.loves) + 5, 9, E.inOut)} />
-          </div>
-          {/* the pulsing heart (official Odoo heart pop) */}
-          <div
-            style={{
-              position: 'absolute',
-              left: wLoves + P(26),
-              top: sLoves * 0.1,
-              transform: `scale(${pop(f, b(C.loves) + 3, { damping: 9, stiffness: 260 }) * punch(f, b(C.lovesPulse2), 0.32, 4) * onBeats(f, b(C.toGather), b(CUES.drop.slowdown), FRAMES_PER_BEAT, 0.1)}) rotate(${-8 + drift(f, 4, 60, 3)}deg)`,
-              transformOrigin: '50% 60%',
-            }}
-          >
-            <Mark name="heart" color="red" height={P(118)} />
-          </div>
         </div>
       </At>
 
-      {/* ------------------------------------------------ "to gather" */}
-      <At x={X(0)} y={yGather + hold * 0.3}>
-        <div style={{ display: 'flex' }}>
-          <div style={lineMask(sGather)}>
-            <KText text="to " size={sGather} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, b(C.toGather) + i * 1.5, 12)} />
-          </div>
-          <Gather f={f} size={sGather} x0={wTo} />
+      {/* ------------------------------------------------ "the" */}
+      <At x={X(0)} y={lay.yThe + hold * 0.3}>
+        <div style={{ ...lineMask(lay.sThe), opacity: others }}>
+          <KText text="the" size={lay.sThe} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, b(C.the) + i * 1.2, 11)} />
         </div>
       </At>
 
-      {/* ------------------------------------------------ "for the" */}
-      <At x={X(0)} y={yFor + hold * 0.2}>
-        <div style={lineMask(sFor)}>
-          <KText text="for the" size={sFor} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, b(C.forThe) + i * 1.1, 11)} />
-        </div>
-      </At>
-
-      {/* ------------------------------------------------ Odoo Experience. */}
-      <At x={X(0)} y={yLock + hold * 0.1}>
-        <Lockup f={f} start={b(C.odooExperience)} logoH={lockH} />
+      {/* ------------------------------------------------ Odoo Experience. (the anchor) */}
+      <At x={X(0)} y={lay.yLock}>
+        <Lockup f={f} start={b(C.odooExperience)} logoH={lay.lockH} />
       </At>
     </div>
   );
@@ -209,30 +161,6 @@ const Lockup: React.FC<{ f: number; start: number; logoH: number }> = ({ f, star
   );
 };
 
-/** "gather": letters start scattered and converge, like people coming together. */
-const Gather: React.FC<{ f: number; size: number; x0: number }> = ({ f, size }) => {
-  const scatter = useMemo(() => {
-    const r = rng(77);
-    return Array.from({ length: 6 }, () => ({ dx: (r() - 0.5) * 2, dy: (r() - 0.5) * 2, rot: (r() - 0.5) * 80 }));
-  }, []);
-  return (
-    <KText
-      text="gather"
-      size={size}
-      weight={700}
-      tracking={-0.02}
-      charStyle={({ i }) => {
-        const s = scatter[i];
-        const p = pop(f, b(C.toGather) + 3 + i * 1.5, { damping: 13, stiffness: 140, mass: 0.9 });
-        return {
-          transform: `translate(${(1 - p) * s.dx * size * 2.2}px, ${(1 - p) * s.dy * size * 1.6}px) rotate(${(1 - p) * s.rot}deg) scale(${mix(0.4, 1, p)})`,
-          opacity: Math.min(1, p * 2.5),
-        };
-      }}
-    />
-  );
-};
-
 /** Hearts rising from cities across the map. */
 const Hearts: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number }; size: number; rise: number }> = ({ f, toMap, size, rise: riseBy }) => {
   const r = useMemo(() => rng(11), []);
@@ -240,7 +168,7 @@ const Hearts: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number
   return (
     <>
       {spec.map(({ c, i, s, sway, delay, col }) => {
-        const t0 = b(C.loves) + 2 + delay;
+        const t0 = b(C.loves) + 1 + delay;
         const t = f - t0;
         if (t < 0 || t > 46) return null;
         const p = Math.min(1, t / 46);
@@ -258,66 +186,98 @@ const Hearts: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number
   );
 };
 
-/** Pins pop up across India, then converge on Gujarat into one cluster. */
-const Pins: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number }; home: { x: number; y: number }; dot: number }> = ({ f, toMap, home, dot }) => {
+
+/** Pins pop up across India, then gather into a heart of dots over Gujarat. */
+const HeartOfPins: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number }; home: { x: number; y: number }; dot: number; width: number }> = ({
+  f,
+  toMap,
+  home,
+  dot,
+  width,
+}) => {
   const spec = useMemo(() => {
-    const r = rng(5);
-    return PIN_CITIES.map((c, i) => {
-      // phyllotaxis slot in the final cluster
-      const a = i * 2.39996;
-      const rad = Math.sqrt(i + 1) * 0.62;
-      const col = i % 7 === 0 ? COLORS.yellow : i % 11 === 0 ? COLORS.teal : COLORS.white;
-      return { c, i, appear: r() * 9, travel: 14 + r() * 8, lag: r() * 6, slot: { x: Math.cos(a) * rad, y: Math.sin(a) * rad }, col };
+    // points spaced evenly along a heart outline
+    const n = PIN_CITIES.length;
+    const curve = (t: number) => ({
+      x: 16 * Math.pow(Math.sin(t), 3),
+      y: -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)),
     });
-  }, []);
-  const fG = b(C.toGather);
+    const dense = Array.from({ length: 2000 }, (_, i) => curve((i / 2000) * Math.PI * 2));
+    const lens = [0];
+    for (let i = 1; i < dense.length; i++) lens.push(lens[i - 1] + Math.hypot(dense[i].x - dense[i - 1].x, dense[i].y - dense[i - 1].y));
+    const total = lens[lens.length - 1];
+    const slots: { x: number; y: number }[] = [];
+    let j = 0;
+    for (let k = 0; k < n; k++) {
+      const target = (k / n) * total;
+      while (j < lens.length - 1 && lens[j] < target) j++;
+      slots.push({ x: dense[j].x / 32, y: (dense[j].y - 2.5) / 32 });
+    }
+    const r = rng(5);
+    // each city takes the nearest free slot by angle, so paths don't cross much
+    const order = PIN_CITIES.map((c, i) => ({ c, i, a: Math.atan2(toMap(c).y - home.y, toMap(c).x - home.x) })).sort((p, q) => p.a - q.a);
+    const slotOrder = slots.map((s, i) => ({ s, i, a: Math.atan2(s.y, s.x) })).sort((p, q) => p.a - q.a);
+    return order.map((o, k) => ({
+      c: o.c,
+      i: o.i,
+      slot: slotOrder[k].s,
+      appear: r() * 9,
+      travel: 15 + r() * 7,
+      lag: r() * 6,
+      col: o.i % 7 === 0 ? COLORS.yellow : o.i % 11 === 0 ? COLORS.teal : COLORS.white,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [home.x, home.y]);
+  const fP = b(C.pins);
   const fC = b(C.converge);
-  const ringP = prog(f, fC + 22, 26, E.out);
+  // the heart beats once on each of the last four beats of the scene
+  let beat = 1;
+  for (const hb of C.heartbeats) {
+    const t = f - b(hb);
+    if (t >= 0 && t < 15) beat += 0.14 * Math.exp(-t / 3) + 0.07 * (t >= 4 ? Math.exp(-(t - 4) / 3) : 0);
+  }
+  const formed = prog(f, fC + 20, 10, E.out);
   return (
-    <>
-      {/* landing ring at home */}
-      {f >= fC + 20 ? (
-        <div
-          style={{
-            position: 'absolute',
-            left: home.x,
-            top: home.y,
-            width: dot * 9,
-            height: dot * 9,
-            borderRadius: '50%',
-            border: `${Math.max(1.5, dot * 0.22)}px solid ${COLORS.white}`,
-            transform: `translate(-50%,-50%) scale(${mix(0.3, 2.4, ringP)})`,
-            opacity: (1 - ringP) * 0.9,
-          }}
-        />
-      ) : null}
+    <div style={{ position: 'absolute', left: home.x, top: home.y, width: 0, height: 0, transform: `scale(${beat})` }}>
+      {/* soft glow once the heart has formed */}
+      <div
+        style={{
+          position: 'absolute',
+          left: -width * 0.8,
+          top: -width * 0.8,
+          width: width * 1.6,
+          height: width * 1.6,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 65%)',
+          opacity: formed,
+        }}
+      />
       {spec.map(({ c, i, appear, travel, lag, slot, col }) => {
-        const start = fG + appear;
+        const start = fP + appear;
         if (f < start) return null;
-        const a = toMap(c);
-        const target = { x: home.x + slot.x * dot * 1.25, y: home.y + slot.y * dot * 1.25 };
+        const a0 = toMap(c);
+        const a = { x: a0.x - home.x, y: a0.y - home.y };
+        const target = { x: slot.x * width, y: slot.y * width };
         const pAt = (ff: number) => prog(ff, fC + lag, travel, E.inOutSoft);
         const pos = (ff: number) => {
           const k = pAt(ff);
-          // slight arc on the way in
-          const mx = (a.x + target.x) / 2 + (a.y - target.y) * 0.18;
-          const my = (a.y + target.y) / 2 - (a.x - target.x) * 0.18;
+          const mx = (a.x + target.x) / 2 + (a.y - target.y) * 0.16;
+          const my = (a.y + target.y) / 2 - (a.x - target.x) * 0.16;
           const u = 1 - k;
           return { x: u * u * a.x + 2 * u * k * mx + k * k * target.x, y: u * u * a.y + 2 * u * k * my + k * k * target.y };
         };
         const p = pos(f);
         const s = pop(f, start, { damping: 10, stiffness: 320 });
         const moving = pAt(f) > 0.02 && pAt(f) < 0.98;
-        const pulseK = 1 + 0.25 * Math.exp(-Math.max(0, f - b(C.forThe)) / 5) * (f >= b(C.forThe) ? 1 : 0) + 0.25 * Math.exp(-Math.max(0, f - b(C.odooExperience)) / 5) * (f >= b(C.odooExperience) ? 1 : 0);
         return (
           <React.Fragment key={i}>
             {moving
-              ? [3, 6, 9].map((lagF, j) => {
+              ? [3, 6].map((lagF, j) => {
                   const q = pos(f - lagF);
                   return (
                     <div
                       key={j}
-                      style={{ position: 'absolute', left: q.x, top: q.y, width: dot * (0.8 - j * 0.18), height: dot * (0.8 - j * 0.18), borderRadius: '50%', background: col, opacity: 0.35 - j * 0.1, transform: 'translate(-50%,-50%)' }}
+                      style={{ position: 'absolute', left: q.x, top: q.y, width: dot * (0.8 - j * 0.2), height: dot * (0.8 - j * 0.2), borderRadius: '50%', background: col, opacity: 0.3 - j * 0.12, transform: 'translate(-50%,-50%)' }}
                     />
                   );
                 })
@@ -331,13 +291,13 @@ const Pins: React.FC<{ f: number; toMap: (c: string) => { x: number; y: number }
                 height: dot,
                 borderRadius: '50%',
                 background: col,
-                boxShadow: `0 0 ${dot * 1.4}px ${dot * 0.3}px rgba(255,255,255,0.45)`,
-                transform: `translate(-50%,-50%) scale(${s * pulseK})`,
+                boxShadow: `0 0 ${dot * 1.2}px ${dot * 0.2}px rgba(255,255,255,0.4)`,
+                transform: `translate(-50%,-50%) scale(${s})`,
               }}
             />
           </React.Fragment>
         );
       })}
-    </>
+    </div>
   );
 };

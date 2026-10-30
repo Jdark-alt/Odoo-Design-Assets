@@ -278,7 +278,7 @@ export const Kolam: React.FC<{
 // ---------------------------------------------------------------------------
 // Confetti: brand-coloured pieces and official pops, simulated per frame
 // ---------------------------------------------------------------------------
-type Piece = { kind: 'rect' | 'dot' | 'mark'; mark?: string; color: string; vx: number; vy: number; spin: number; rot: number; size: number; life: number; drag: number };
+type Piece = { kind: 'rect' | 'dot' | 'mark'; mark?: string; color: string; vx: number; vy: number; spin: number; rot: number; size: number; life: number; drag: number; ox: number; oy: number };
 
 export const Burst: React.FC<{
   x: number;
@@ -293,13 +293,18 @@ export const Burst: React.FC<{
   marks?: string[];
   spread?: number;
   angle?: number;
-}> = ({ x, y, start, count = 60, seed = 1, speed = 38, gravity = 0.9, scale = 1, colors = ['yellow', 'teal', 'cyan', 'red', 'white'], marks = ['star', 'sparkle-1', 'heart'], spread = Math.PI * 2, angle = -Math.PI / 2 }) => {
+  /** pieces start anywhere inside this box around (x, y), so they come out of a word */
+  spawnW?: number;
+  spawnH?: number;
+}> = ({ x, y, start, count = 60, seed = 1, speed = 38, gravity = 0.9, scale = 1, colors = ['yellow', 'teal', 'cyan', 'red', 'white'], marks = ['star', 'sparkle-1', 'heart'], spread = Math.PI * 2, angle = -Math.PI / 2, spawnW = 0, spawnH = 0 }) => {
   const f = useCurrentFrame();
   const pieces = useMemo<Piece[]>(() => {
     const r = rng(seed);
     return Array.from({ length: count }, () => {
       const a = angle + (r() - 0.5) * spread;
       const v = speed * (0.35 + r() * 0.85);
+      const ox = (r() - 0.5) * spawnW;
+      const oy = (r() - 0.5) * spawnH;
       const roll = r();
       const kind: Piece['kind'] = roll < 0.18 ? 'mark' : roll < 0.62 ? 'rect' : 'dot';
       return {
@@ -313,9 +318,11 @@ export const Burst: React.FC<{
         size: (kind === 'mark' ? 26 + r() * 22 : kind === 'rect' ? 10 + r() * 12 : 6 + r() * 8) * scale,
         life: 34 + r() * 30,
         drag: 0.86 + r() * 0.06,
+        ox,
+        oy,
       };
     });
-  }, [count, seed, speed, colors, marks, spread, angle, scale]);
+  }, [count, seed, speed, colors, marks, spread, angle, scale, spawnW, spawnH]);
   const t = f - start;
   if (t < 0) return null;
   return (
@@ -325,8 +332,8 @@ export const Burst: React.FC<{
         // closed-form motion with drag and gravity
         const dk = Math.pow(p.drag, t);
         const k = (1 - dk) / (1 - p.drag);
-        const px = x + p.vx * k * scale;
-        const py = y + p.vy * k * scale + gravity * scale * (t * t * 0.18);
+        const px = x + p.ox + p.vx * k * scale;
+        const py = y + p.oy + p.vy * k * scale + gravity * scale * (t * t * 0.18);
         const o = Math.min(1, (p.life - t) / 10);
         const rot = p.rot + p.spin * t;
         const flip = Math.cos((t + i) * 0.35);
