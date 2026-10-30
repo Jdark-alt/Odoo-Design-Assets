@@ -1,7 +1,7 @@
-// Scene 1 (0:00-0:04): "India loves the Odoo Experience."
+// Scene 1 (0:00-0:04): "India loves the Odoo Community Days."
 // Quick: the map draws itself, hearts pop up across India, a glowing pin drops
-// onto Gujarat, and the Odoo Experience lockup lands as the anchor. Then the
-// camera dives into the bottom stroke of the "E" of "Experience" (Scene 2).
+// onto Gujarat, and the Odoo Community Days lockup lands as the anchor. Then
+// the camera dives into the stem of the "D" of "Days" (Scene 2).
 import React, { useMemo } from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, FONTS, b } from '../config';
@@ -9,12 +9,12 @@ import { useLayout } from '../lib/layout';
 import { E, drift, mix, pop, prog, punch, rng, tw } from '../lib/motion';
 import { KText, textWidth } from '../components/KText';
 import { At, SceneWindow, lineMask } from '../components/Scene';
-import { LOGO_RATIO, Logo, Mark } from '../components/Brand';
+import { Logo, Mark } from '../components/Brand';
 import { INDIA_CITIES, INDIA_VB, IndiaMap } from '../components/Graphics';
-import { HANDOFF_Z, diveCamera, loveLayout } from './shared';
+import { HANDOFF_Z, cdLockup, diveCamera, loveLayout } from './shared';
 
 const C = CUES.love;
-const HOME = 'gandhinagar'; // Odoo Experience's usual home in Gujarat
+const HOME = 'gandhinagar'; // Odoo India's home in Gujarat
 const HEART_CITIES = Object.keys(INDIA_CITIES).filter((c) => !['gandhinagar', 'ahmedabad', 'vadodara', 'rajkot', 'surat'].includes(c));
 
 export const Scene1Love: React.FC = () => (
@@ -117,9 +117,9 @@ const Love: React.FC = () => {
         </div>
       </At>
 
-      {/* ------------------------------------------------ Odoo Experience. (the anchor) */}
+      {/* ------------------------------------------------ Odoo Community Days. (the anchor) */}
       <At x={X(0)} y={lay.yLock}>
-        <Lockup f={f} start={b(C.odooExperience)} logoH={lay.lockH} />
+        <Lockup f={f} start={b(C.communityDays)} logoH={lay.lockH} />
       </At>
     </div>
   );
@@ -131,30 +131,27 @@ export const rise = (f: number, start: number, dur: number, dist = 1.5): React.C
   return { transform: `translateY(${(1 - p) * dist * 100}%)` };
 };
 
-/** Logo + "Experience." with a sweeping wipe (the brand emphasis). */
+/** Logo + "Community" with a sweeping wipe (the brand emphasis), then "Days." rises in underneath. */
 const Lockup: React.FC<{ f: number; start: number; logoH: number }> = ({ f, start, logoH }) => {
-  const gap = logoH * 0.5;
-  const size = logoH * 0.98;
-  const wLogo = logoH * LOGO_RATIO;
+  const cd = cdLockup(logoH);
   const wipe = prog(f, start, 8, E.out);
   const slide = (1 - prog(f, start, 12, E.out)) * -logoH * 0.9;
-  const width = wLogo + gap + textWidth('Experience.', size, 700, 'sans', -0.02);
+  const word = (i: number) => {
+    const p = prog(f, start + 1 + i * 0.6, 9, E.back);
+    return { transform: `translateX(${(1 - p) * cd.s * 0.9}px)`, opacity: Math.min(1, p * 2) };
+  };
   return (
-    <div style={{ position: 'relative', width, height: logoH * 1.2, clipPath: `inset(-20% ${(1 - wipe) * 100}% -40% -5%)`, transform: `translateX(${slide}px)` }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${punch(f, start + 2, 0.08, 5)})`, transformOrigin: '0% 100%' }}>
-        <Logo height={logoH} />
+    <div style={{ position: 'relative', width: cd.width, height: cd.height }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: cd.width, height: logoH * 1.2, clipPath: `inset(-20% ${(1 - wipe) * 100}% -40% -5%)`, transform: `translateX(${slide}px)` }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${punch(f, start + 2, 0.08, 5)})`, transformOrigin: '0% 100%' }}>
+          <Logo height={logoH} />
+        </div>
+        <div style={{ position: 'absolute', left: cd.xWord, top: cd.top1 }}>
+          <KText text="Community" size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => word(i)} />
+        </div>
       </div>
-      <div style={{ position: 'absolute', left: wLogo + gap, top: logoH - size * 0.863 }}>
-        <KText
-          text="Experience."
-          size={size}
-          weight={700}
-          tracking={-0.02}
-          charStyle={({ i }) => {
-            const p = prog(f, start + 1 + i * 0.6, 9, E.back);
-            return { transform: `translateX(${(1 - p) * size * 0.9}px)`, opacity: Math.min(1, p * 2) };
-          }}
-        />
+      <div style={{ position: 'absolute', left: cd.xWord, top: cd.top2, ...lineMask(cd.s) }}>
+        <KText text="Days." size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => rise(f, start + 5 + i * 0.8, 9)} />
       </div>
     </div>
   );

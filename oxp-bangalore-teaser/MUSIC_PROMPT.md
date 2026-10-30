@@ -32,13 +32,13 @@ The video runs at **120 BPM**: 1 beat = 0.5 s, 1 bar = 2 s, 30 s = 60 beats. Pas
 | Time | Beat | What's on screen | What the music should do |
 | --- | --- | --- | --- |
 | 0:00 | 0 | "India" lands, map draws | Groove from the first frame |
-| 0:06.25 | 12.5 | Camera dives into the "E" | Lift: drums out, riser |
+| 0:06.25 | 12.5 | Camera dives into the lockup | Lift: drums out, riser |
 | 0:06.5 | 13 | "So we are back." | Groove lands back in |
 | 0:08.5 | 17 | "But this time, something is different." | Breakdown, near silence |
-| 0:13 | 26 | "We are bringing the Odoo Experience..." | Groove returns |
+| 0:13 | 26 | "We are bringing the Odoo Community Days..." | Groove returns |
 | 0:15 | 30 | "...you" | Big, happy hit after a half-beat pause |
 | 0:17–0:20 | 34–39 | Odoo 20 · Live demos · ... · Community | One item per beat, full groove |
 | 0:20 | 40 | "And so much more." | Still full |
-| 0:22 | 44 | "The Odoo Experience is on tour." | Lighter, warm |
+| 0:22 | 44 | "The Odoo Community Days is on tour." | Lighter, warm |
 | 0:24.5 | 49 | "Bangalore" | Gentle lift |
 | 0:26 | 52 | End card | Resolve, ring out to 0:30 |

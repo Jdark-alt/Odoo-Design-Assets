@@ -100,8 +100,8 @@ thump(L.india, 0.7);
 for (let j = 0; j < 7; j++) blip(L.loves + 0.15 + j * 0.22, 0.45, 76 + (j % 3) * 3, ((j % 3) - 1) * 0.4);
 blip(L.pin, 0.6, 72);
 thump(L.pin + 0.15, 0.35);
-thump(L.odooExperience, 0.5);
-// Scene 2: the dive into the stroke, the whiteout, the zoom into the B
+thump(L.communityDays, 0.5);
+// Scene 2: the dive into the D, the whiteout, the zoom into the B
 air(D.dive, D.whiteout, 0.7, 250, 6500, -0.1, 0.1);
 thump(D.whiteout, 0.8);
 blip(D.words + 0.25, 0.4, 79);
@@ -110,7 +110,7 @@ air(D.exit, D.exit + 1, 0.55, 4500, 300, 0.1, -0.1);
 for (let c = 0; c < 'But this time,'.length; c++) key(T.butThisTime + (3 + c * 1.4) / 15, 0.6 + 0.2 * Math.abs(rnd()), ((c % 5) - 2) * 0.08);
 swell(T.different - 0.25, R.we - 0.1, 0.5);
 // Scene 4
-blip(R.odooExperience, 0.35, 77);
+blip(R.communityDays, 0.35, 77);
 blip(R.you, 0.55, 79);
 sparkle(R.you, 2, 0.9, 18);
 // Scene 5: a light pop per item, a small sparkle for "And so much more!"
@@ -119,7 +119,7 @@ sparkle(F.more + 0.1, 1.5, 0.6, 10);
 // Scene 6
 blip(O.bangalore, 0.45, 76);
 sparkle(O.bangalore, 1.2, 0.45, 8);
-sparkle(O.comingSoon, 1.5, 0.3, 6);
+sparkle(O.details, 1.5, 0.3, 6);
 
 const wet = reverb(send, 0.8, 0.45);
 const outL = new Float32Array(N);

@@ -1,7 +1,7 @@
 import { Easing } from 'remotion';
 import { CUES, FONTS, b } from '../config';
 import { Layout } from '../lib/layout';
-import { baselineFrac, eArms, measure100 } from '../lib/fonts';
+import { baselineFrac, glyphStem, measure100 } from '../lib/fonts';
 import { E, prog } from '../lib/motion';
 import { INDIA_RATIO } from '../components/Graphics';
 import { LOGO_RATIO } from '../components/Brand';
@@ -10,8 +10,24 @@ import { LOGO_RATIO } from '../components/Brand';
 export const INTER_BASE = 0.8633;
 
 /**
+ * The Odoo Community Days lockup: the logo, then "Community" at the kit's
+ * spacing (gap = half the logo height, word at 0.98x the logo height), and
+ * "Days" on a second line aligned under "Community" (the way the kit's
+ * EventLockup sets its city line). Distances in px for a logo of height lk.
+ */
+export const cdUnit = () => LOGO_RATIO + 0.5 + (measure100('Community', 700, FONTS.sans, -0.02) / 100) * 0.98;
+export const cdLockup = (lk: number) => {
+  const s = lk * 0.98;
+  const xWord = lk * (LOGO_RATIO + 0.5);
+  const w1 = (measure100('Community', 700, FONTS.sans, -0.02) / 100) * s;
+  const base1 = lk; // row 1 sits on the logo's baseline
+  const base2 = base1 + s * 1.06;
+  return { s, xWord, w1, width: xWord + w1, base1, base2, top1: base1 - INTER_BASE * s, top2: base2 - INTER_BASE * s, height: base2 + 0.26 * s };
+};
+
+/**
  * Scene 1 layout: "India loves" on top, the map in the middle, "the" and the
- * Odoo Experience lockup underneath. The lockup is the widest line: the anchor.
+ * Odoo Community Days lockup underneath. The lockup is the anchor.
  */
 export const loveLayout = (L: Layout) => {
   const { P, X, Y } = L;
@@ -19,42 +35,38 @@ export const loveLayout = (L: Layout) => {
   const sLoves = P(146);
   const sThe = P(66);
   const lockMaxW = L.wide ? L.box.w * 0.5 : L.box.w;
-  const lockUnit = LOGO_RATIO + 0.5 + (measure100('Experience.', 700, FONTS.sans, -0.02) / 100) * 0.98;
-  const lockH = Math.min(P(112), lockMaxW / lockUnit);
-  const yTop = Y(L.wide ? 0.03 : 0.03);
+  const lockH = Math.min(P(104), lockMaxW / cdUnit());
+  const cd = cdLockup(lockH);
+  const yTop = Y(0.03);
   const lovesTop = yTop + INTER_BASE * sIndia - baselineFrac(FONTS.hand) * sLoves;
   const xLoves = X(0) + (measure100('India ', 700, FONTS.sans, -0.03) / 100) * sIndia;
 
-  const mapTop = Y(L.wide ? 0.04 : 0.17);
-  const mapBottom = Y(L.wide ? 0.98 : 0.78);
+  const yLock = L.box.y + L.box.h - cd.height;
+  const yThe = yLock - sThe * 1.12;
+  const mapTop = Y(L.wide ? 0.04 : 0.15);
+  const mapBottom = L.wide ? Y(0.98) : yThe - P(6);
   const mapH = mapBottom - mapTop;
   const mapW = mapH * INDIA_RATIO;
   const mapX = L.wide ? L.box.x + L.box.w - mapW : L.box.x + (L.box.w - mapW) / 2 + P(20);
 
-  const yThe = Y(L.wide ? 0.7 : 0.79);
-  const yLock = Y(L.wide ? 0.78 : 0.86);
-  const xE = X(0) + lockH * LOGO_RATIO + lockH * 0.5;
-  const sizeE = lockH * 0.98;
-  const topE = yLock + lockH - INTER_BASE * sizeE;
-  return { sIndia, sLoves, sThe, lockH, yTop, lovesTop, xLoves, mapTop, mapH, mapW, mapX, yThe, yLock, xE, sizeE, topE };
+  // the D of "Days": where the camera dives in
+  const xD = X(0) + cd.xWord;
+  const baseD = yLock + cd.base2;
+  return { sIndia, sLoves, sThe, lockH, cd, yTop, lovesTop, xLoves, mapTop, mapH, mapW, mapX, yThe, yLock, xD, baseD, sizeD: cd.s };
 };
 
 /**
- * The camera move from Scene 1 into the bottom stroke of the "E" of
- * "Experience": it eases in, then dives until the stroke's white fills the
- * whole frame on the drop. Scene 1 draws the start of the move; Scene 2 takes
- * over (drawing the E as rectangles, so any zoom stays sharp) at HANDOFF_Z.
+ * The camera move from Scene 1 into the stem of the "D" of "Days": it eases
+ * in, then dives until the stem's white fills the whole frame on the drop.
+ * Scene 1 draws the start of the move; Scene 2 takes over at HANDOFF_Z.
  */
 export const HANDOFF_Z = 7;
 export const diveCamera = (L: Layout) => {
   const lay = loveLayout(L);
-  const a = eArms();
-  const arm = a.arms[a.arms.length - 1];
-  const baseE = lay.topE + INTER_BASE * lay.sizeE;
-  const c = { x: lay.xE + ((a.left + arm.right) / 2) * lay.sizeE, y: baseE + ((arm.top + arm.bottom) / 2) * lay.sizeE };
-  const thick = (arm.bottom - arm.top) * lay.sizeE;
-  const len = (arm.right - a.left) * lay.sizeE;
-  const Z = Math.max((L.H * 1.1) / thick, (L.W * 1.1) / len);
+  const st = glyphStem('D');
+  const S = lay.sizeD;
+  const c = { x: lay.xD + ((st.left + st.right) / 2) * S, y: lay.baseD + ((st.top + st.bottom) / 2) * S };
+  const Z = Math.max((L.W * 1.1) / ((st.right - st.left) * S), (L.H * 1.1) / ((st.bottom - st.top) * S));
   const T = { x: L.W / 2, y: L.H / 2 };
   const accel = Easing.bezier(0.55, 0, 0.9, 0.5);
   const at = (f: number) => {
@@ -70,7 +82,7 @@ export const diveCamera = (L: Layout) => {
     const map = (x: number, y: number) => ({ x: px + (x - c.x) * z, y: py + (y - c.y) * z });
     return { z, px, py, k, map, transform: `translate(${px}px, ${py}px) scale(${z}) translate(${-c.x}px, ${-c.y}px)` };
   };
-  return { c, T, Z, at, lay, arms: a, baseE };
+  return { c, T, Z, at, lay, stem: st };
 };
 
 /** Where Scene 3 types "But this time,". */

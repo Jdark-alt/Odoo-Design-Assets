@@ -1,21 +1,21 @@
-// Scene 6 (0:22-0:30): "The Odoo Experience is on tour." / "Next stop: Bangalore." / end card.
-// The Odoo Experience lockup is the anchor from start to finish. A metro line
-// (the brand's route motif) carries the tour to the Bangalore stop, the
+// Scene 6 (0:16.5-0:21): "The Odoo Community Days is on tour." / "Next stop: Bangalore." / end card.
+// The Odoo Community Days lockup is the anchor from start to finish. A metro
+// line (the brand's route motif) carries the tour to the Bangalore stop, the
 // Vidhana Soudha completes its trace, then the extra words fall away: the
-// lockup settles, "bangalore" glides into place under it, and "Coming soon."
-// arrives last and smallest.
+// lockup settles, "bangalore" glides into place under it, and the date and
+// venue (END_CARD) arrive last, at the bottom.
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, END_CARD, FONTS, MONUMENT_TEASE, b } from '../config';
 import { useLayout } from '../lib/layout';
-import { baselineFrac, measure100 } from '../lib/fonts';
+import { baselineFrac } from '../lib/fonts';
 import { E, drift, mix, pop, prog, tw } from '../lib/motion';
 import { KText, textWidth } from '../components/KText';
 import { At, SceneWindow, lineMask } from '../components/Scene';
-import { Doodle, LOGO_RATIO, Logo, Mark } from '../components/Brand';
+import { Doodle, Logo, Mark } from '../components/Brand';
 import { Kolam, MONUMENT_RATIO, Monument } from '../components/Graphics';
 import { MONUMENT_DOME } from '../brand/vidhanaSoudha';
-import { INTER_BASE, routeLine, teaseMonument } from './shared';
+import { cdLockup, cdUnit, routeLine, teaseMonument } from './shared';
 
 const C = CUES.outro;
 const STATIONS = 6; // the last one is Bangalore
@@ -34,19 +34,16 @@ const Outro: React.FC = () => {
   const fNext = b(C.nextStop);
   const fBang = b(C.bangalore);
   const fLock = b(C.lockup);
-  const fSoon = b(C.comingSoon);
+  const fDetails = b(C.details);
 
   // words that aren't the brand or the city leave before the end card
   const leave = prog(f, fLock - 8, 10, E.inSoft);
   const settle = prog(f, fLock - 4, 20, E.inOut); // lockup and city glide to the centred end card
   const hold = drift(f, P(3), 150, 12);
 
-  // ---- the anchor: logo + Experience, as wide as the safe area allows ----
-  const lkUnit = LOGO_RATIO + 0.5 + (measure100('Experience', 700, FONTS.sans, -0.02) / 100) * 0.98;
-  const lk = Math.min(P(112), (L.box.w * (L.wide ? 0.6 : 1)) / lkUnit);
-  const sExp = lk * 0.98;
-  const wLogo = lk * LOGO_RATIO;
-  const xExp = wLogo + lk * 0.5;
+  // ---- the anchor: logo + Community / Days, as wide as the safe area allows ----
+  const lk = Math.min(P(106), (L.box.w * (L.wide ? 0.6 : 1)) / cdUnit());
+  const cd = cdLockup(lk);
 
   // ---- phase A layout (on tour) ----
   const sThe = P(60);
@@ -55,20 +52,22 @@ const Outro: React.FC = () => {
   const sCityA = Math.min(P(200), L.box.h * 0.17);
   const yTheA = Y(L.wide ? 0.0 : 0.04);
   const yLockA = yTheA + sThe * 1.3;
-  const yTourA = yLockA + lk * 1.32;
+  const yTourA = yLockA + cd.base2 + lk * 0.3;
   const r = routeLine(L);
   const yNext = r.y + P(48);
   const yCityA = yNext + sNext * 1.25;
 
-  // ---- end card layout: centred; lockup, then a larger "bangalore", then "Coming soon." at the bottom ----
-  const lockW = xExp + textWidth('Experience', sExp, 700, 'sans', -0.02);
+  // ---- end card layout: centred; lockup, then a larger "bangalore", then the date and venue at the bottom ----
+  const lockW = cd.width;
   const sCityB = Math.min(lk * 1.6, P(190));
-  const yLockB = Y(L.wide ? 0.22 : 0.3);
-  const yCityB = yLockB + lk * 1.18;
+  const yLockB = Y(L.wide ? 0.12 : 0.27);
+  const yCityB = yLockB + cd.base2 + lk * 0.16;
   const xCityB = (L.W - textWidth('bangalore', sCityB, 700, 'hand')) / 2;
-  const sSoon = P(42);
-  const ySoon = L.box.y + L.box.h - sSoon * 1.05;
-  const wSoon = textWidth('Coming soon.', sSoon, FONTS.weight.light, 'sans', 0.02);
+  const sDate = P(56);
+  const sVenue = P(42);
+  const yVenue = L.box.y + L.box.h - sVenue * 1.02;
+  const yDate = yVenue - sDate * 1.32;
+  const raise = L.box.y + L.box.h - yDate + P(36); // the monument makes room for the date and venue
 
   const yLock = mix(yLockA, yLockB, settle);
   const xLock = mix(X(0), (L.W - lockW) / 2, settle);
@@ -94,7 +93,7 @@ const Outro: React.FC = () => {
   const mDomeY = mix(crop.domeY, full.domeY, pull);
   const mH = mW / MONUMENT_RATIO;
   const trace = tw(f, b(C.monumentStart) + 2, b(C.monumentEnd), MONUMENT_TEASE, 1, E.inOut);
-  const mOpacity = tw(f, b(C.monumentStart) - 2, b(C.monumentStart) + 10, 0, 0.34, E.out) * mix(1, 0.6, settle);
+  const mOpacity = tw(f, b(C.monumentStart) + 2, b(C.monumentStart) + 18, 0, 0.34, E.in) * mix(1, 0.6, settle);
 
   const kolamPitch = P(72);
   const endIn = prog(f, fLock + 2, 26, E.outSoft);
@@ -109,7 +108,7 @@ const Outro: React.FC = () => {
             left: mDomeX - mW * MONUMENT_DOME.x,
             top: mDomeY - mH * MONUMENT_DOME.y,
             opacity: mOpacity,
-            transform: `translateY(${-settle * sSoon * 2.2}px) scale(${mix(1, 0.8, settle)})`,
+            transform: `translateY(${-settle * raise}px) scale(${mix(1, 0.8, settle)})`,
             transformOrigin: '50% 100%',
           }}
         >
@@ -194,14 +193,17 @@ const Outro: React.FC = () => {
         </At>
       </div>
 
-      {/* the anchor: Odoo Experience lockup, present from the first beat to the last frame */}
+      {/* the anchor: Odoo Community Days lockup, present from the first beat to the last frame */}
       <At x={xLock} y={yLock + hold * (1 - settle)}>
-        <div style={{ position: 'relative', height: lk * 1.25, width: xExp + textWidth('Experience', sExp, 700, 'sans', -0.02) }}>
+        <div style={{ position: 'relative', height: cd.height, width: cd.width }}>
           <div style={{ position: 'absolute', left: 0, top: 0, clipPath: `inset(-10% ${(1 - prog(f, f0 + 4, 16, E.outSoft)) * 100}% -10% 0)` }}>
             <Logo height={lk} />
           </div>
-          <div style={{ position: 'absolute', left: xExp, top: lk - INTER_BASE * sExp, ...lineMask(sExp) }}>
-            <KText text="Experience" size={sExp} weight={700} tracking={-0.02} charStyle={({ i }) => glide(f, f0 + 8 + i)} />
+          <div style={{ position: 'absolute', left: cd.xWord, top: cd.top1, ...lineMask(cd.s) }}>
+            <KText text="Community" size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => glide(f, f0 + 8 + i)} />
+          </div>
+          <div style={{ position: 'absolute', left: cd.xWord, top: cd.top2, ...lineMask(cd.s) }}>
+            <KText text="Days" size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => glide(f, f0 + 12 + i)} />
           </div>
         </div>
       </At>
@@ -243,29 +245,21 @@ const Outro: React.FC = () => {
         </At>
       ) : null}
 
-      {f >= fSoon - 1 ? (
-        <At x={(L.W - wSoon) / 2} y={ySoon}>
-          <div style={{ opacity: prog(f, fSoon, 20, E.outSoft), transform: `translateY(${(1 - prog(f, fSoon, 20, E.outSoft)) * P(12)}px)` }}>
-            <KText text="Coming soon." size={sSoon} weight={FONTS.weight.light} tracking={0.02} />
-          </div>
-        </At>
-      ) : null}
-
-      {/* reserved: date / registration line, filled in from END_CARD when confirmed */}
-      {END_CARD.dateLine ? (
-        <At x={(L.W - textWidth(END_CARD.dateLine, P(34), 700)) / 2} y={yCityB + sCityB * 1.35}>
-          <div style={{ opacity: prog(f, fSoon + 10, 20, E.outSoft) }}>
-            <KText text={END_CARD.dateLine} size={P(34)} weight={700} color={COLORS.white} />
-          </div>
-        </At>
-      ) : null}
-      {END_CARD.detailLine ? (
-        <At x={(L.W - textWidth(END_CARD.detailLine, P(28), FONTS.weight.regular)) / 2} y={yCityB + sCityB * 1.35 + P(50)}>
-          <div style={{ opacity: prog(f, fSoon + 14, 20, E.outSoft) }}>
-            <KText text={END_CARD.detailLine} size={P(28)} weight={FONTS.weight.regular} color={COLORS.inkMuted} />
-          </div>
-        </At>
-      ) : null}
+      {/* date and venue, bottom centre, last */}
+      {[
+        { text: END_CARD.dateLine, size: sDate, y: yDate, weight: 700, color: COLORS.white, tracking: -0.01, at: fDetails },
+        { text: END_CARD.detailLine, size: sVenue, y: yVenue, weight: FONTS.weight.regular, color: COLORS.inkMuted, tracking: 0, at: fDetails + 6 },
+      ].map((l) => {
+        if (!l.text || f < l.at - 1) return null;
+        const p = prog(f, l.at, 18, E.outSoft);
+        return (
+          <At key={l.text} x={(L.W - textWidth(l.text, l.size, l.weight, 'sans', l.tracking)) / 2} y={l.y}>
+            <div style={{ opacity: p, transform: `translateY(${(1 - p) * P(12)}px)` }}>
+              <KText text={l.text} size={l.size} weight={l.weight} tracking={l.tracking} color={l.color} />
+            </div>
+          </At>
+        );
+      })}
     </>
   );
 };

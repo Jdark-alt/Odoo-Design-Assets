@@ -1,19 +1,18 @@
-// Scene 4 (0:13-0:17): "We are bringing the Odoo Experience to you."
+// Scene 4 (0:09-0:12): "We are bringing the Odoo Community Days to you."
 // Hierarchy: "you" is the only highlighted word (Caveat on the official yellow
-// bar); the Odoo Experience lockup is the anchor of the sentence; the rest is
-// quiet. Pops and confetti come out of "you" itself.
+// bar); the Odoo Community Days lockup is the anchor of the sentence; the rest
+// is quiet. Pops and confetti come out of "you" itself.
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, FONTS, b } from '../config';
 import { useLayout } from '../lib/layout';
-import { measure100 } from '../lib/fonts';
 import { E, drift, mix, pop, prog } from '../lib/motion';
 import { KText, textWidth } from '../components/KText';
 import { At, SceneWindow, lineMask } from '../components/Scene';
-import { LOGO_RATIO, Logo, Mark } from '../components/Brand';
+import { Logo, Mark } from '../components/Brand';
 import { Burst } from '../components/Graphics';
 import { rise } from './Scene1Love';
-import { INTER_BASE } from './shared';
+import { cdLockup, cdUnit } from './shared';
 
 const C = CUES.reveal;
 const LINE1 = [
@@ -33,7 +32,7 @@ const Reveal: React.FC = () => {
   const f = useCurrentFrame();
   const L = useLayout();
   const { P } = L;
-  const fOdoo = b(C.odooExperience);
+  const fOdoo = b(C.communityDays);
   const fTo = b(C.to);
   const fYou = b(C.you);
   const fEnd = b(CUES.rapid.items[0]);
@@ -44,27 +43,24 @@ const Reveal: React.FC = () => {
   const W1 = FONTS.weight.regular;
   const wSpace = textWidth(' ', s1, W1);
   const lineW = (L.wide ? 0.62 : 1) * L.box.w;
-  const lkUnit = LOGO_RATIO + 0.5 + ((measure100('Experience', 700, FONTS.sans, -0.02) + measure100(' to', FONTS.weight.light, FONTS.sans)) / 100) * 0.98;
-  const lk = Math.min(P(110), lineW / lkUnit);
-  const sExp = lk * 0.98;
-  const wLogo = lk * LOGO_RATIO;
-  const wExp = textWidth('Experience', sExp, 700, 'sans', -0.02);
+  const lk = Math.min(P(106), lineW / cdUnit());
+  const cd = cdLockup(lk);
   const sYou = Math.min(P(340), L.box.h * 0.3);
   const wYou = textWidth('you', sYou, 700, 'hand');
   const pad = 0.14 * sYou; // highlight bar overhang (the kit's HighlightWord)
   const barW = wYou + pad * 2;
   const barH = sYou * 0.98;
 
-  const blockH = s1 * 1.4 + lk * 1.45 + sYou * 1.05;
+  const blockH = s1 * 1.4 + cd.base2 + lk * 0.45 + sYou * 1.05;
   const y1 = L.box.y + (L.box.h - blockH) / 2 - P(10);
   const y2 = y1 + s1 * 1.4;
-  const y3 = y2 + lk * 1.45;
-  // lines 1-2 start centred on their own and lift as "you" lands
-  const h12 = s1 * 1.4 + lk * 1.25;
+  const y3 = y2 + cd.base2 + lk * 0.45;
+  // line 1 and the lockup start centred on their own and lift as "you" lands
+  const h12 = s1 * 1.4 + cd.height;
   const lift = (L.box.y + (L.box.h - h12) / 2 - y1) * (1 - prog(f, fYou - 3, 10, E.out));
-  // everything centred on the vertical axis
-  const wTo = textWidth(' to', sExp, FONTS.weight.light);
-  const w2 = wLogo + lk * 0.5 + wExp + wTo;
+  // everything centred on the vertical axis; "to" follows "Days" on its line
+  const wDays = textWidth('Days', cd.s, 700, 'sans', -0.02);
+  const w2 = Math.max(cd.width, cd.xWord + wDays + textWidth(' to', cd.s, FONTS.weight.light));
   const x2 = (L.W - w2) / 2;
   const youX = (L.W - barW) / 2;
 
@@ -116,17 +112,20 @@ const Reveal: React.FC = () => {
         </div>
       </At>
 
-      {/* line 2: the anchor, logo + Experience, then a quiet "to" */}
+      {/* the anchor: logo + Community / Days, then a quiet "to" */}
       <At x={x2} y={y2 + lift + drift(f, P(3), 100, 2)}>
-        <div style={{ position: 'relative', height: lk * 1.25, width: w2 }}>
+        <div style={{ position: 'relative', height: cd.height, width: w2 }}>
           <div style={{ position: 'absolute', left: 0, top: 0, transform: `scale(${mix(0.6, 1, pop(f, fOdoo, { damping: 13, stiffness: 260, mass: 0.6 }))})`, transformOrigin: '0% 100%', opacity: Math.min(1, prog(f, fOdoo, 3) * 1.5) }}>
             <Logo height={lk} />
           </div>
-          <div style={{ position: 'absolute', left: wLogo + lk * 0.5, top: lk - INTER_BASE * sExp, ...lineMask(sExp) }}>
-            <KText text="Experience" size={sExp} weight={700} tracking={-0.02} charStyle={({ i }) => rise(f, fOdoo + 2 + i * 0.8, 10)} />
+          <div style={{ position: 'absolute', left: cd.xWord, top: cd.top1, ...lineMask(cd.s) }}>
+            <KText text="Community" size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => rise(f, fOdoo + 2 + i * 0.7, 10)} />
           </div>
-          <div style={{ position: 'absolute', left: wLogo + lk * 0.5 + wExp, top: lk - INTER_BASE * sExp, ...lineMask(sExp) }}>
-            <KText text=" to" size={sExp} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, fTo + i, 10)} />
+          <div style={{ position: 'absolute', left: cd.xWord, top: cd.top2, ...lineMask(cd.s) }}>
+            <KText text="Days" size={cd.s} weight={700} tracking={-0.02} charStyle={({ i }) => rise(f, fOdoo + 6 + i * 0.8, 10)} />
+          </div>
+          <div style={{ position: 'absolute', left: cd.xWord + wDays, top: cd.top2, ...lineMask(cd.s) }}>
+            <KText text=" to" size={cd.s} weight={FONTS.weight.light} charStyle={({ i }) => rise(f, fTo + i, 10)} />
           </div>
         </div>
       </At>

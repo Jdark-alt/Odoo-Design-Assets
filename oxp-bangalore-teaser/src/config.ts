@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Odoo Experience Bangalore teaser: the one place for tempo, cues, colours,
+// Odoo Community Days Bangalore teaser: the one place for tempo, cues, colours,
 // fonts and formats. Every animation and the generated music read from here.
 //
 // The music is an edit of "Open Invitation" (120 BPM), cut on bar lines by
@@ -25,7 +25,7 @@ export const DURATION_FRAMES = b(TOTAL_BEATS);
 // lead/tail: frames a scene may draw before its start / after its end, so one
 // line can hand off into the next instead of cutting.
 export const SCENES = {
-  love: { start: 0, end: 7.5, lead: 0, tail: 8, title: 'Scene 1 · India loves the Odoo Experience' },
+  love: { start: 0, end: 7.5, lead: 0, tail: 8, title: 'Scene 1 · India loves the Odoo Community Days' },
   drop: { start: 7.5, end: 12, lead: 0, tail: 1, title: 'Scene 2 · So We Are Back!' },
   tease: { start: 12, end: 18, lead: 0, tail: 14, title: 'Scene 3 · The tease' },
   reveal: { start: 18, end: 24, lead: 0, tail: 3, title: 'Scene 4 · The reveal' },
@@ -42,13 +42,13 @@ export const CUES = {
     loves: 1, // "loves"; hearts pop up across the map
     pin: 2.5, // a glowing pin drops onto Gujarat
     the: 3,
-    odooExperience: 3.5, // the anchor: logo + "Experience."
+    communityDays: 3.5, // the anchor: logo + "Community" / "Days."
     pinPulses: [4, 5, 6],
   },
   drop: {
-    push: 5.5, // the camera eases toward the bottom stroke of the E
+    push: 5.5, // the camera eases toward the stem of the D of "Days"
     dive: 6.5, // ...then dives into it
-    whiteout: 8, // the white of the E takes over the screen (the drop)
+    whiteout: 8, // the white of the D takes over the screen (the drop)
     words: 7.75, // "So We Are Back!" pops up as negative space
     exit: 11, // zoom into the negative space (the B) into Scene 3
   },
@@ -64,7 +64,7 @@ export const CUES = {
     are: 18.5,
     bringing: 19,
     the: 19.5,
-    odooExperience: 20, // the anchor of the line
+    communityDays: 20, // the anchor of the line
     to: 21,
     you: 22, // the only highlighted word, on the chorus drop
     monumentGone: 19,
@@ -75,13 +75,13 @@ export const CUES = {
     moreOut: 32.4,
   },
   outro: {
-    onTour: 33, // "The Odoo Experience is on tour."
+    onTour: 33, // "The Odoo Community Days is on tour."
     nextStop: 35,
     bangalore: 35.75,
     monumentStart: 35, // full Vidhana Soudha trace
     monumentEnd: 38,
     lockup: 38, // end card, on the track's last hit
-    comingSoon: 39.25, // bottom centre, smallest, last
+    details: 39.25, // date and venue, bottom centre, last
   },
 } as const;
 
@@ -113,9 +113,9 @@ export const AUDIO_CUES: AudioCue[] = [
   { beat: 0, kind: 'hit', label: '"India" lands (soft thump)' },
   { beat: 1, kind: 'pop', label: 'Hearts pop up across the map' },
   { beat: 2.5, kind: 'pop', label: 'Glowing pin drops on Gujarat' },
-  { beat: 3.5, kind: 'hit', label: '"Odoo Experience." lands' },
+  { beat: 3.5, kind: 'hit', label: '"Odoo Community Days." lands' },
   { beat: 4, kind: 'lift', label: 'Music: the swell builds', to: 8 },
-  { beat: 6.5, kind: 'whoosh', label: 'Dive into the bottom stroke of the E', to: 8 },
+  { beat: 6.5, kind: 'whoosh', label: 'Dive into the stem of the D of "Days"', to: 8 },
   { beat: 8, kind: 'impact', label: 'Music drop: white takes over, "So We Are Back!"' },
   { beat: 11, kind: 'whoosh', label: 'Zoom into the negative space', to: 12 },
   { beat: 12, kind: 'cut', label: 'Music cut: drumless breakdown', to: 18 },
@@ -127,7 +127,7 @@ export const AUDIO_CUES: AudioCue[] = [
   { beat: 30, kind: 'hit', label: '"And so much more!"' },
   { beat: 33, kind: 'cut', label: 'Music cut: last chorus bar with its fill' },
   { beat: 35.75, kind: 'hit', label: '"Bangalore" lands' },
-  { beat: 38, kind: 'section', label: 'Music: final hit, rings out under the end card', to: 42 },
+  { beat: 38, kind: 'section', label: 'Music: final hit, rings out under the end card (date and venue fade in at 39.25)', to: 42 },
 ];
 
 // ---- Camera shake and flashes (beats) --------------------------------------
@@ -183,10 +183,10 @@ export const FORMATS = {
 } as const;
 export type FormatId = keyof typeof FORMATS;
 
-/** Optional end-card details: fill these in when the date or venue is confirmed. */
+/** End-card details, bottom centre: the date, then the venue. */
 export const END_CARD = {
-  dateLine: '', // e.g. '12 Dec 2026 · 10:00 AM IST'
-  detailLine: '', // e.g. 'Register free at odoo.com/india'
+  dateLine: '4–5 February, 2027',
+  detailLine: 'BIEC, Bangalore',
 };
 
 /** Beats on which the pulli dot grid (the brand's background texture) flashes. */

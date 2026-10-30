@@ -1,16 +1,17 @@
 // Scene 2 (0:03.75-0:06): "So We Are Back!"
-// The camera keeps diving into the bottom stroke of the "E" of "Experience"
-// (picked up from Scene 1). As the stroke's white takes over the screen on the
+// The camera keeps diving into the stem of the "D" of "Days" (picked up from
+// Scene 1). As the stem's white takes over the screen on the
 // drop, "So We Are Back!" pops up as negative space cut out of it. Then the
 // camera zooms into that negative space (the stem of the B), into Scene 3.
 import React from 'react';
 import { useCurrentFrame } from 'remotion';
 import { COLORS, CUES, FONTS, SCENES, b } from '../config';
 import { useLayout } from '../lib/layout';
-import { inkBox } from '../lib/fonts';
+import { glyphStem } from '../lib/fonts';
 import { E, mix, pop, prog } from '../lib/motion';
 import { layoutChars, textWidth } from '../components/KText';
 import { SceneWindow } from '../components/Scene';
+import { Logo } from '../components/Brand';
 import { HANDOFF_Z, diveCamera } from './shared';
 import { Easing } from 'remotion';
 
@@ -33,16 +34,17 @@ const Drop: React.FC = () => {
   const fEnd = b(SCENES.tease.start);
   if (f < b(C.dive) || view.z < HANDOFF_Z || f >= fEnd) return null;
 
-  // ---- the letter E (and the rest of "Experience."), drawn in screen space ----
-  const { lay, arms: a, baseE } = cam;
-  const S = lay.sizeE;
-  const rect = (x0: number, y0: number, x1: number, y1: number) => {
-    const p = view.map(lay.xE + x0 * S, baseE + y0 * S);
-    const q = view.map(lay.xE + x1 * S, baseE + y1 * S);
-    return { x: p.x, y: p.y, width: q.x - p.x, height: q.y - p.y };
-  };
-  const eRects = [rect(a.left, a.top, a.stemRight, a.bottom), ...a.arms.map((arm) => rect(a.left, arm.top, arm.right, arm.bottom))];
-  const chars = layoutChars('Experience.', S, 700, 'sans', -0.02).chars.slice(1);
+  // ---- the stem of the D (and the rest of the lockup), drawn in screen space ----
+  const { lay, stem: st } = cam;
+  const S = lay.sizeD;
+  const p0 = view.map(lay.xD + st.left * S, lay.baseD + st.top * S);
+  const p1 = view.map(lay.xD + st.right * S, lay.baseD + st.bottom * S);
+  const stemRect = { x: p0.x, y: p0.y, width: p1.x - p0.x, height: p1.y - p0.y };
+  const rows = [
+    { text: 'Community', base: lay.yLock + lay.cd.base1 },
+    { text: 'Days.', base: lay.baseD },
+  ].flatMap((r) => layoutChars(r.text, S, 700, 'sans', -0.02).chars.map((c) => ({ ...c, key: `${r.text}${c.i}`, at: view.map(lay.xD + c.x, r.base) })));
+  const logoAt = view.map(lay.xD - lay.cd.xWord, lay.yLock);
   const white = f >= fWhite;
 
   // ---- "So We Are Back!" as negative space, centred ----
@@ -63,9 +65,9 @@ const Drop: React.FC = () => {
 
   // hold: a slow push; exit: zoom into the stem of the B (negative space)
   const hold = 1 + 0.03 * prog(f, fWhite, fExit - fWhite, E.inOutSoft);
-  const B = inkBox('B', s2, 700, FONTS.sans);
-  const stemW = (a.stemRight - a.left) * s2;
-  const focus = { x: x2 + B.left + stemW * 0.5, y: base2 - cap2 * 0.5 };
+  const stB = glyphStem('B');
+  const stemW = (stB.right - stB.left) * s2;
+  const focus = { x: x2 + ((stB.left + stB.right) / 2) * s2, y: base2 + ((stB.top + stB.bottom) / 2) * s2 };
   const k = prog(f, fExit, fEnd - fExit, Easing.bezier(0.6, 0, 0.95, 0.4));
   const zoom = Math.exp(Math.log(Math.max(2, (L.H * 1.4) / stemW)) * k);
   const scene = `translate(${focus.x} ${focus.y}) scale(${zoom * hold}) translate(${-focus.x} ${-focus.y})`;
@@ -94,19 +96,19 @@ const Drop: React.FC = () => {
           <rect x={-L.W * 50} y={-L.H * 50} width={L.W * 100} height={L.H * 100} />
         ) : (
           <>
-            {eRects.map((r, i) => (
-              <rect key={i} {...r} />
-            ))}
-            {view.z < 40
-              ? chars.map((c) => {
-                  const p = view.map(lay.xE + c.x, baseE);
-                  return (
-                    <text key={c.i} x={p.x} y={p.y} fontSize={S * view.z} fontFamily={FONTS.sans} fontWeight={700}>
-                      {c.ch}
-                    </text>
-                  );
-                })
-              : null}
+            <rect {...stemRect} />
+            {view.z < 40 ? (
+              <>
+                <g transform={`translate(${logoAt.x} ${logoAt.y})`}>
+                  <Logo height={lay.lockH * view.z} />
+                </g>
+                {rows.map((c) => (
+                  <text key={c.key} x={c.at.x} y={c.at.y} fontSize={S * view.z} fontFamily={FONTS.sans} fontWeight={700}>
+                    {c.ch}
+                  </text>
+                ))}
+              </>
+            ) : null}
           </>
         )}
       </g>

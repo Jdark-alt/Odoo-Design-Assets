@@ -1,6 +1,6 @@
-# Odoo Experience Bangalore: teaser
+# Odoo Community Days Bangalore: teaser
 
-A 21-second kinetic typography teaser for Odoo India, built in Remotion. Odoo Experience goes on tour, and the first stop is Bangalore. The primary format is LinkedIn portrait (1080 x 1350, 4:5, 30 fps, H.264). Square (1:1) and landscape (16:9) render from the same scenes.
+A 21-second kinetic typography teaser for Odoo India, built in Remotion. Odoo Community Days goes on tour, and the first stop is Bangalore (4–5 February 2027, BIEC). The primary format is LinkedIn portrait (1080 x 1350, 4:5, 30 fps, H.264). Square (1:1) and landscape (16:9) render from the same scenes.
 
 Preview: [`renders/oxp-bangalore-teaser-4x5.mp4`](renders/oxp-bangalore-teaser-4x5.mp4)
 
@@ -32,7 +32,7 @@ REMOTION_CHROME=/path/to/chrome-headless-shell npm run render
 
 | Path | What |
 | --- | --- |
-| `src/config.ts` | **The one config file**: BPM, beat grid offset, every scene and cue time (in beats), audio cue points, camera shakes and flashes, colours, fonts, formats, safe area, optional end-card date line |
+| `src/config.ts` | **The one config file**: BPM, beat grid offset, every scene and cue time (in beats), audio cue points, camera shakes and flashes, colours, fonts, formats, safe area, and the end-card date and venue (`END_CARD`) |
 | `src/Root.tsx` | Compositions: `Teaser-4x5`, `Teaser-1x1`, `Teaser-16x9` (master) and `Scene1-love` to `Scene6-outro` (each scene on its own) |
 | `src/Master.tsx` | Master timeline: night ground, scenes, shake, flashes, grain, music |
 | `src/scenes/` | One component per scene; `shared.ts` holds the framings that hand off between scenes |

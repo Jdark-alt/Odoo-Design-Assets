@@ -75,20 +75,12 @@ export const baselineFrac = (family: string, weight = 700) => {
   return (1 - (asc + desc)) / 2 + asc;
 };
 
-export type GlyphArms = {
-  /** ink box, in ems from the pen origin (x) and baseline (y, negative = up) */
-  left: number;
-  right: number;
-  top: number;
-  bottom: number;
-  stemRight: number;
-  /** horizontal bars of the letter, top to bottom */
-  arms: { top: number; bottom: number; right: number }[];
-};
-let armsCache: GlyphArms | null = null;
-/** Measures the stem and the three arms of Inter Bold "E" by scanning its pixels. */
-export const eArms = (): GlyphArms => {
-  if (armsCache) return armsCache;
+export type GlyphStem = { left: number; right: number; top: number; bottom: number };
+const stemCache = new Map<string, GlyphStem>();
+/** The straight left stem of an Inter Bold capital (D, B...), in ems from the pen origin and baseline. */
+export const glyphStem = (ch: string): GlyphStem => {
+  const hit = stemCache.get(ch);
+  if (hit) return hit;
   const S = 1000;
   const ox = 200;
   const base = 1100;
@@ -98,41 +90,23 @@ export const eArms = (): GlyphArms => {
   const g = c.getContext('2d')!;
   g.fillStyle = '#fff';
   g.font = `700 ${S}px Inter`;
-  g.fillText('E', ox, base);
+  g.fillText(ch, ox, base);
   const d = g.getImageData(0, 0, c.width, c.height).data;
   const on = (x: number, y: number) => d[(y * c.width + x) * 4 + 3] > 127;
   let minX = c.width;
-  let maxX = 0;
   let minY = c.height;
   let maxY = 0;
   for (let y = 0; y < c.height; y++)
     for (let x = 0; x < c.width; x++)
       if (on(x, y)) {
         if (x < minX) minX = x;
-        if (x > maxX) maxX = x;
         if (y < minY) minY = y;
         if (y > maxY) maxY = y;
       }
-  // stem: the ink run starting at the left edge, measured in the gap under the top arm
-  const yGap = Math.round(minY + (maxY - minY) * 0.3);
-  let stemR = minX;
-  while (stemR < maxX && on(stemR + 1, yGap)) stemR++;
-  // arms: ink runs in a column just right of the stem
-  const xc = stemR + 6;
-  const arms: { top: number; bottom: number; right: number }[] = [];
-  let y = minY;
-  while (y <= maxY) {
-    if (on(xc, y)) {
-      const t = y;
-      while (y <= maxY && on(xc, y)) y++;
-      const bt = y - 1;
-      const ym = Math.round((t + bt) / 2);
-      let r = xc;
-      while (r < maxX && on(r + 1, ym)) r++;
-      arms.push({ top: (t - base) / S, bottom: (bt + 1 - base) / S, right: (r + 1 - ox) / S });
-    }
-    y++;
-  }
-  armsCache = { left: (minX - ox) / S, right: (maxX + 1 - ox) / S, top: (minY - base) / S, bottom: (maxY + 1 - base) / S, stemRight: (stemR + 1 - ox) / S, arms };
-  return armsCache;
+  const ym = Math.round((minY + maxY) / 2);
+  let r = minX;
+  while (on(r + 1, ym)) r++;
+  const out = { left: (minX - ox) / S, right: (r + 1 - ox) / S, top: (minY - base) / S, bottom: (maxY + 1 - base) / S };
+  stemCache.set(ch, out);
+  return out;
 };

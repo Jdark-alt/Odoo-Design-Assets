@@ -2,7 +2,7 @@
   "name": "oxp-bangalore-teaser",
   "version": "1.0.0",
   "private": true,
-  "description": "Odoo Experience Bangalore: 30-second kinetic typography teaser (Remotion)",
+  "description": "Odoo Community Days Bangalore: 21-second kinetic typography teaser (Remotion)",
   "scripts": {
     "studio": "remotion studio",
     "music": "tsx scripts/edit-music.ts",

@@ -1,5 +1,13 @@
 # Notes: assets, audio cue points, decisions
 
+## Revision 4 (feedback round 3): Odoo Community Days
+
+- **Name**: every "Odoo Experience" in the video now reads **"Odoo Community Days"**: Scene 1 ("India loves the Odoo Community Days."), Scene 4 ("We are bringing the Odoo Community Days to you.") and Scene 6 ("The Odoo Community Days is on tour.", then the end card).
+- **Lockup**: "Community Days" is longer than "Experience", and on one line it would shrink the logo by about a quarter. So the lockup now has two lines, the way the kit's `EventLockup` sets its city line: logo + "Community" on the first line, and "Days" under "Community", left-aligned with it. The logo keeps its full size. The same lockup is used in Scenes 1, 4 and 6 (`cdLockup` in `src/scenes/shared.ts`).
+- **Scene 2 dive**: there's no "E" any more, so the camera now dives into the straight stem of the **"D" of "Days"**. The stem's white takes over the screen on the drop, and "So We Are Back!" is cut out of it as before.
+- **Scene 4**: the lockup is centred as a block, "to" follows "Days" on the second line, and "you" stays centred underneath.
+- **End card**: "Coming soon." is replaced by **"4–5 February, 2027"** (Inter Bold) and **"BIEC, Bangalore"** (Inter Regular, muted), centred at the bottom. They fade in after the lockup and "bangalore", in that order. The text lives in `END_CARD` in `src/config.ts`, and the Vidhana Soudha line art moves up to make room.
+
 ## Revision 3 (feedback round 2): 21 seconds, on "Open Invitation"
 
 - **Length**: 21 s (42 beats at 120 BPM), cut to an edit of the generated track. "you" lands on the chorus drop, and the end card lands on the track's final hit.
@@ -37,7 +45,7 @@ Everything below comes from the **Odoo Experience India** design system (the art
 - **Colours**: Primary Purple `#714B67`, white ink, and the four additional colours (yellow, teal, cyan, red), used only for highlights, pops, doodle fills, confetti, avatar rings and accent lines.
 - **Official graphic elements** (kit `Mark` set): `underline-line` ("loves", "bangalore"), `highlight-bar-3` (behind "you", text kept dark), `circle-bold` ("community"), `heart`, `star`, `sparkle-1`, `pop-fan`, `arrow-curve-up`.
 - **Caveat words, each with its graphic element**: "loves", "you", "community", "bangalore".
-- **Event lockup**: logo + "Experience" (Inter Bold at 0.98x the logo height, gap = half the logo height, the logo's safe zone) + city in Caveat under "Experience", as the kit's `EventLockup` is built.
+- **Event lockup**: logo + "Community" (Inter Bold at 0.98x the logo height, gap = half the logo height, the logo's safe zone), with "Days" on the next line under "Community", as the kit's `EventLockup` sets its second line. On the end card the city sits under it in Caveat.
 - **Kolam**: the kit's own generator (5 x 6 grid, one continuous line), drawing once over 2.4 s on the end card's corner.
 - **Pulli** dot-grid texture, flashing on the first two kicks.
 - **Metro route motif** (kit `RouteAgenda`): a Primary Purple line with white-disc stations.
@@ -48,7 +56,7 @@ Everything below comes from the **Odoo Experience India** design system (the art
 
 - **India outline** (`src/brand/india.json`): built from Natural Earth 1:10m Admin 0, **India point-of-view** dataset (public domain), so the boundary matches India's official map, including all of Jammu & Kashmir, Ladakh and Arunachal Pradesh. Andaman & Nicobar and Lakshadweep are included.
 - **Vidhana Soudha line art** (`src/brand/vidhanaSoudha.ts`): front elevation with the dome, lantern and lion capital, drum, twelve columns, grand staircase, three-storey wings, wing domes and corner chhatris. Each stroke has its own slot on a 0..1 trace clock (Scene 3 stops at 48%; Scene 6 completes it).
-- **The "E" dive** (Scene 2): the real Inter Bold "E", with its stem and arms measured from the glyph's pixels at render time. It's drawn as exact rectangles, so the camera can push into the bottom stroke until its white fills the frame.
+- **The "D" dive** (Scene 2): the stem of the real Inter Bold "D" of "Days", measured from the glyph's pixels at render time (`glyphStem` in `src/lib/fonts.tsx`). It's drawn as an exact rectangle, so the camera can push into it until its white fills the frame. The exit into the "B" of "Back!" uses the same measurement.
 - **Hearts and the Gujarat pin**: the kit's official heart pop appearing over 40 cities, and a white location pin with a yellow core and a soft glow that drops onto Gandhinagar and pulses.
 - **People avatars** for "Networking": a head and shoulders in a night-frame disc, ringed in palette colours.
 - **Confetti**: palette pieces mixed with the kit's star, sparkle and heart pops.
@@ -69,9 +77,9 @@ Rebuild both with `npm run audio`.
 | 0:00.00 | 0 | 0 | hit | "India" lands (soft thump) |
 | 0:00.50 | 1 | 15 | pop | Hearts pop up across the map |
 | 0:01.25 | 2.5 | 38 | pop | Glowing pin drops on Gujarat |
-| 0:01.75 | 3.5 | 53 | hit | "Odoo Experience." lands |
+| 0:01.75 | 3.5 | 53 | hit | "Odoo Community Days." lands |
 | 0:02.00 to 0:04.00 | 4 | 60 | lift | Music: the swell builds |
-| 0:03.25 to 0:04.00 | 6.5 | 98 | whoosh | Dive into the bottom stroke of the E |
+| 0:03.25 to 0:04.00 | 6.5 | 98 | whoosh | Dive into the stem of the D of "Days" |
 | 0:04.00 | 8 | 120 | impact | Music drop: white takes over, "So We Are Back!" |
 | 0:05.50 to 0:06.00 | 11 | 165 | whoosh | Zoom into the negative space |
 | 0:06.00 to 0:09.00 | 12 | 180 | cut | Music cut: drumless breakdown |
@@ -83,22 +91,23 @@ Rebuild both with `npm run audio`.
 | 0:15.00 | 30 | 450 | hit | "And so much more!" |
 | 0:16.50 | 33 | 495 | cut | Music cut: last chorus bar with its fill |
 | 0:17.88 | 35.75 | 536 | hit | "Bangalore" lands |
-| 0:19.00 to 0:21.00 | 38 | 570 | section | Music: final hit, rings out under the end card |
+| 0:19.00 to 0:21.00 | 38 | 570 | section | Music: final hit, rings out under the end card (date and venue fade in at 39.25) |
 
 120 BPM, 1 beat = 0.5s = 15 frames.
 
 The effects play only where the picture moves:
 - light pops for the hearts, the pin and the montage items
 - soft thumps for landings
-- air for the dive into the E and the zoom into the B
+- air for the dive into the D and the zoom into the B
 - soft keystrokes for "But this time,"
 - a breathy swell under "different."
-- small sparkles for "you", "And so much more!" and "Bangalore"
+- small sparkles for "you", "And so much more!", "Bangalore" and the date
 
 ## Decisions to confirm
 
 - **Bangalore vs Bengaluru.** The brief's copy says "Bangalore", so the video uses it. The kit's lockup default is "bengaluru".
 - **"Odoo 20" purple card.** It's the only full-frame purple left (0.5 s). It can switch to the night ground.
 - **Music licence.** The music is AI-generated ("Open Invitation"). Check the generator's terms for commercial use before publishing.
-- **End-card details.** Space is left under "Coming soon.". Fill `END_CARD.dateLine` / `END_CARD.detailLine` in `src/config.ts` when the date or venue is confirmed.
+- **"is on tour" vs "are on tour".** Scene 6 treats "Odoo Community Days" as one event (singular): "The Odoo Community Days is on tour." Change it to "are" in `src/scenes/Scene6Outro.tsx` if you prefer the plural.
+- **Date format.** The end card uses an en dash for the range ("4–5 February, 2027"). Change `END_CARD` in `src/config.ts` for a different format.
 - **Other formats.** 1:1 and 16:9 render from the same scenes. 4:5 is the art-directed version.
